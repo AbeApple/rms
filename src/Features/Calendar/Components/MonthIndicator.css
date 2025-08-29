@@ -1,0 +1,61 @@
+.dayMonthIndicator {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  height: 25px;
+  font-weight: bold;
+  padding-top: 3px;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* Show/hide different versions based on screen size */
+.full-month-name {
+  display: inline;
+}
+
+.short-month-name,
+.mini-month-name {
+  display: none;
+}
+
+/* Tablet screens */
+@media (max-width: 768px) {
+  .dayMonthIndicator {
+    height: 22px;
+    font-size: 0.9rem;
+    padding-top: 2px;
+  }
+  
+  .full-month-name {
+    display: none;
+  }
+  
+  .short-month-name {
+    display: inline;
+  }
+  
+  .mini-month-name {
+    display: none;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 480px) {
+  .dayMonthIndicator {
+    height: 20px;
+    font-size: 0.8rem;
+    padding-top: 2px;
+  }
+  
+  .full-month-name,
+  .short-month-name {
+    display: none;
+  }
+  
+  .mini-month-name {
+    display: inline;
+  }
+}

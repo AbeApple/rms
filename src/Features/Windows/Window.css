@@ -1,0 +1,28 @@
+.window{
+    height: 95vh;
+    width: 95vw;
+    border-radius: 5px;
+    background-color: rgba(92, 92, 92, 0.705);
+    position: fixed;
+    top: 2%;
+    left: 2%;
+}
+.closeButton{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    border-radius: 2px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20px;
+    width: 20px;
+    user-select: none;
+    transition: 500ms;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.closeButton:hover{
+    background-color: rgba(255, 255, 255, 0.4);
+}
