@@ -43,17 +43,18 @@ const useMonthObserver = (months, active = true) => {
         //   `Most visible: ${mostVisibleMonth} (${maxRatio.toFixed(2)}), Second most: ${secondMaxRatio.toFixed(2)}`
         );
 
-        // Only dispatch if the most visible month is at least 5% more visible and at least 50% in view
-        if (mostVisibleMonth && maxRatio >= (secondMaxRatio + 0.05) && maxRatio > 0.5) {
+        // Only dispatch if the most visible month is at least 3% more visible and at least 30% in view
+        // Lower thresholds for faster response
+        if (mostVisibleMonth && maxRatio >= (secondMaxRatio + 0.03) && maxRatio > 0.3) {
           if (mostVisibleMonth !== currentMonthRef.current) {
-            // Debounce dispatch to prevent rapid switching
+            // Reduced debounce time for faster response
             if (debounceTimeoutRef.current) {
               clearTimeout(debounceTimeoutRef.current);
             }
             debounceTimeoutRef.current = setTimeout(() => {
               dispatch(setMonthInView(mostVisibleMonth));
               currentMonthRef.current = mostVisibleMonth;
-            }, 500); // Avoid rapid switching
+            }, 150); // Reduced from 500ms to 150ms for faster response
           } else {
             // console.log(`No dispatch: ${mostVisibleMonth} is already current`);
           }

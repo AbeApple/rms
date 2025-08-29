@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import Day from './Day';
 import './Month.css';
 
 // Builds a calendar with all of the days based on the month string
 function Month({monthString}) {
-  const [days, setDays] = useState([]);
-  
-  useEffect(() => {
-    if (monthString) {
-      generateDays();
-    }
+  // Use useMemo to cache days array based on monthString
+  const days = useMemo(() => {
+    if (!monthString) return [];
+    return generateDays(monthString);
   }, [monthString]);
   
-  // Generate days for the month
-  function generateDays() {
+  // Generate days for the month - moved outside of component body for better performance
+  function generateDays(monthString) {
     const [year, monthNum] = monthString.split('-').map(num => parseInt(num));
     const month = monthNum - 1; // Adjust for JavaScript's 0-indexed months (0-11)
     const firstDay = new Date(year, month, 1);
@@ -52,9 +50,9 @@ function Month({monthString}) {
     
     // Only keep complete weeks
     if (daysInCompleteWeeks < totalDays) {
-      setDays(daysArray.slice(0, daysInCompleteWeeks));
+      return daysArray.slice(0, daysInCompleteWeeks);
     } else {
-      setDays(daysArray);
+      return daysArray;
     }
   }
 
@@ -75,4 +73,5 @@ function Month({monthString}) {
   );
 }
 
-export default Month;
+// Use memo to prevent unnecessary re-renders
+export default memo(Month);
