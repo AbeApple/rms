@@ -4,6 +4,7 @@ import SettingsWindow from './Features/Windows/SettingsWindow';
 import EventsLoader from './Features/Events/EventsLoader';
 import EventWindow from './Features/Windows/EventWindow';
 import DayWindow from './Features/Windows/DayWindow';
+import ContactsLoader from './Features/Contacts/ContactsLoader';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <EventWindow />
 
       <EventsLoader />
+      <ContactsLoader />
     </div>
   );
 }

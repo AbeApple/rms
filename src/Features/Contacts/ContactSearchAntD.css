@@ -1,0 +1,39 @@
+.contact-search-antd {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contact-search-antd .selector-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.contact-search-antd .mode-toggle-button {
+  min-width: 40px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.contact-search-antd .contact-autocomplete {
+  flex-grow: 1;
+}
+
+.contact-search-antd .contact-input {
+  flex-grow: 1;
+}
+
+/* Adjust Ant Design component heights */
+.contact-search-antd .ant-select-selector,
+.contact-search-antd .ant-input {
+  height: 32px !important;
+}
+
+/* Ensure proper alignment */
+.contact-search-antd .ant-select-selection-search-input {
+  height: 30px !important;
+}

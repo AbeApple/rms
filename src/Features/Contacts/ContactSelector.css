@@ -1,0 +1,37 @@
+.contact-selector {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.selector-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.mode-toggle-button {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.mode-toggle-button:hover {
+  background-color: #e0e0e0;
+}
+
+.contact-autocomplete {
+  flex-grow: 1;
+}
+
+.contact-input {
+  flex-grow: 1;
+}

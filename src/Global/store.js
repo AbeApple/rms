@@ -1,5 +1,6 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 import eventsReducer from './eventsSlice';
+import contactsReducer from './contactsSlice';
 import { yearMonthString } from './functions';
 
 // UI state slice
@@ -94,5 +95,6 @@ export default configureStore({
     calendar: calendarSlice.reducer,
     ui: uiSlice.reducer,
     events: eventsReducer,
+    contacts: contactsReducer,
   },
 });

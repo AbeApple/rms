@@ -1,3 +1,96 @@
-.eventWindow{
-    z-index: 3;
+/* Header section styling */
+.eventWindowHeader {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Container for the content area */
+.eventWindowContent {
+    display: flex;
+    flex-direction: row;
+    height: calc(100% - 60px); /* Subtract header height + padding */
+    width: 100%;
+}
+
+/* Left side styling */
+.eventWindowLeft {
+    flex: 0.65;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #e0e0e0;
+}
+
+/* Right side styling */
+.eventWindowRight {
+    flex: 0.35;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Right side content */
+.rightSideContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Input row styling */
+.input-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 3px 0;
+    width: 100%;
+}
+
+/* Input styling for half width */
+.input-row input,
+.input-row select {
+    width: 48%;
+    padding: 6px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+}
+
+/* Full width input */
+.input-row .full-width {
+    width: 100%;
+}
+
+/* Textarea container */
+.textarea-container {
+    width: 100%;
+}
+
+/* Make textarea take remaining space */
+.textarea-container textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    padding: 8px;
+    box-sizing: border-box;
+    flex-grow: 1;
+}
+
+/* Mobile view (screen width less than 768px) */
+@media (max-width: 768px) {
+    .eventWindowContent {
+        flex-direction: column;
+        flex: none;
+    }
+    
+    .eventWindowLeft {
+        height: 65%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .eventWindowRight {
+        height: 35%;
+    }
 }

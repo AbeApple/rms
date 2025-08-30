@@ -104,7 +104,8 @@ function Calendar() {
       // Wait for DOM to be ready before scrolling
       initialScrollTimeout.current = setTimeout(() => {
         console.log('Initial scroll to today');
-        scrollToToday();
+        // scrollToToday();
+        scrollToThisMonth();
         
         // Wait for scroll animation to complete before activating observer
         setTimeout(() => {
