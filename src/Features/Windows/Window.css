@@ -6,6 +6,9 @@
     position: fixed;
     top: 2%;
     left: 2%;
+    padding: 5px;
+    box-sizing: border-box;
+    z-index: 2;
 }
 .closeButton{
     position: absolute;

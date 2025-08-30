@@ -1,0 +1,39 @@
+.eventDisplay {
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    margin: 5px;
+    padding: 2px 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.eventDisplayLarger{
+    padding: 10px;
+}
+
+/* Small event display styling for calendar */
+.eventDisplaySmall {
+    padding: 1px 2px;
+    font-size: 9px;
+    margin: 2px;
+}
+/* New event button styling */
+.newEvent {
+    border: 1px dashed #4285F4;
+    color: #4285F4;
+    text-align: center;
+    font-weight: 500;
+}
+
+.newEvent:hover {
+    background-color: #d2e3fc;
+}
+
+/* Selected event styling */
+.eventDisplay.selected {
+    background-color: #d2e3fc;
+    border-left: 3px solid #4285F4;
+}

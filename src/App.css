@@ -4,3 +4,10 @@ body {
   background-color: #3e3c47;
   text-align: center;
 }
+textarea{
+  box-sizing: border-box;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+}

@@ -1,0 +1,61 @@
+/* Header section styling */
+.dayWindowHeader {
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dayWindowHeader input[type="date"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px;
+}
+
+/* Container for the content area */
+.dayWindowContent {
+    display: flex;
+    flex-direction: row;
+    height: calc(100% - 50px); /* Subtract header height + 20px adjustment */
+    width: 100%;
+}
+
+/* Events section */
+.dayWindowEvents, .dayWindowEvents {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #e0e0e0;
+    overflow-y: auto;
+}
+
+/* Log section */
+.dayWindowLog, .dayWidnowLog {
+    flex: 1;
+    padding: 10px;
+}
+
+.dayWindowLog textarea, .dayWidnowLog textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+}
+
+/* Mobile view (screen width less than 768px) */
+@media (max-width: 768px) {
+    .dayWindowContent {
+        flex-direction: column;
+    }
+    
+    .dayWindowEvents, .dayWidnowEvents {
+        height: 50%;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .dayWindowLog, .dayWidnowLog {
+        height: 50%;
+    }
+}

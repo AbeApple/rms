@@ -1,12 +1,14 @@
 import React, { useMemo, memo } from 'react';
 import './Day.css';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedDay } from '../../../Global/store';
 import { dateString } from '../../../Global/functions';
 import MonthIndicator from './MonthIndicator';
+import EventDisplaySmall from '../../Events/EventDisplaySmall';
 
 // Displays the day as a square with the number at the top right
 function Day({ date, monthString}) {
+  const events = useSelector(state => state.events.events)
   const dispatch = useDispatch();
   
   // Memoize calculations that depend on date and monthString
@@ -75,9 +77,10 @@ function Day({ date, monthString}) {
         onClick={() => date && dispatch(setSelectedDay(dateString(date)))}
       >
         <div className='dayBoxDate'>{date?.getDate()}</div>
-        <div className='dayBoxContent'>
-            {/* <div>{monthString}</div>
-            <div>{dateString(date)}</div> */}
+        <div className='dayBoxEvents'>
+            {events[dateString(date)]?.map(eventData => (
+              <EventDisplaySmall key={eventData.id} eventData={eventData} onClick={()=>{}}></EventDisplaySmall>
+            ))}
         </div>
       </div>
     </div>

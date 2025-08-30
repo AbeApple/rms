@@ -260,7 +260,6 @@ function Calendar() {
           <Month key={monthString} monthString={monthString}></Month>
         ))}
       </div>
-      <DayWindow />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
+import eventsReducer from './eventsSlice';
 import { yearMonthString } from './functions';
 
 // UI state slice
@@ -22,7 +23,7 @@ const calendarSlice = createSlice({
   initialState: {
     startMonth: null, // Format: 'YYYY-MM'
     endMonth: null,   // Format: 'YYYY-MM'
-    selectedDay: null, // Date object for the selected day
+    selectedDay: null, // Format: 'YYYY-MM-DD'
     monthInView: null, // Format: 'YYYY-MM'
   },
   reducers: {
@@ -31,7 +32,7 @@ const calendarSlice = createSlice({
       state.endMonth = action.payload.endMonth;
     },
     setSelectedDay(state, action) {
-      console.log("selected date: ", action.payload )
+      console.log("selected date: ", typeof action.payload, action.payload )
       state.selectedDay = action.payload;
     },
     setMonthInView(state, action) {
@@ -92,5 +93,6 @@ export default configureStore({
   reducer: {
     calendar: calendarSlice.reducer,
     ui: uiSlice.reducer,
+    events: eventsReducer,
   },
 });

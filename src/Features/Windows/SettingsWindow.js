@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import "./Window.css"
 import { setShowSettings } from '../../Global/store'
+import Window from './Window'
 
 export default function SettingsWindow() {
     const showSettings = useSelector(state => state.ui.showSettings)
@@ -11,8 +11,10 @@ export default function SettingsWindow() {
         return (<></>)
     else
         return (
-            <div className="window">
-                <div className='closeButton' onClick={() => dispatch(setShowSettings(false))}>x</div>
+            <Window 
+                onClose={() => dispatch(setShowSettings(false))}
+                className="settingsWindow"
+            >
                 <div className="windowContent">
                     <h2>Settings</h2>
                     <div className="settingsSection">
@@ -20,6 +22,6 @@ export default function SettingsWindow() {
                         {/* Settings options will go here */}
                     </div>
                 </div>
-            </div>
+            </Window>
         )
 }
