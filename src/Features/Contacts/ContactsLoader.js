@@ -8,14 +8,14 @@ const sampleContacts = {
   'c001': {
     id: 'c001',
     name: 'John Smith',
-    image: { downloadURL: "https://example.com/images/john-smith.jpg" }
+    image: { downloadURL: "https://gimgs2.nohat.cc/thumb/f/350/male-face-icon-default-profile-image--c3f2c592f9.jpg" }
   },
   
   // Contact 2
   'c002': {
     id: 'c002',
     name: 'Sarah Johnson',
-    image: { downloadURL: "https://example.com/images/sarah-johnson.jpg" }
+    image: { downloadURL: "https://gimgs2.nohat.cc/thumb/f/350/male-face-icon-default-profile-image--c3f2c592f9.jpg" }
   },
   
   // Contact 3

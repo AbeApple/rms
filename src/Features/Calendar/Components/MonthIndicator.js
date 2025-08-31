@@ -15,7 +15,6 @@ function MonthIndicator({ date }) {
     <div className="dayMonthIndicator">
       <span className="full-month-name">{`${month} ${year}`}</span>
       <span className="short-month-name">{`${month.substring(0, 3)} ${year}`}</span>
-      <span className="mini-month-name">{`${month.substring(0, 1)} ${year}`}</span>
     </div>
   );
 }

@@ -1,0 +1,17 @@
+/* Contact window styling */
+.contactWindow {
+    z-index: 3; /* Higher than event window (1002) */
+}
+
+/* Contact window content */
+.contactWindowContent {
+    padding: 20px;
+    height: calc(100% - 40px);
+    overflow-y: auto;
+}
+
+/* Contact ID display */
+.contactIdDisplay {
+    font-size: 18px;
+    margin-bottom: 20px;
+}

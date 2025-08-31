@@ -18,7 +18,7 @@
 /* Contact box input styling */
 .contact-box input,
 .contact-box select {
-  padding: 6px;
+  padding: 5px 8px;
   margin-bottom: 4px;
   box-sizing: border-box;
   border: 1px solid #ddd;
@@ -53,7 +53,9 @@
 .contact-details-container {
   display: flex;
   margin-top: 8px;
+  /* margin-bottom: 8px; */
   gap: 10px;
+
 }
 
 /* Image container */
@@ -90,9 +92,6 @@
 /* Fields container */
 .contact-fields {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 /* Open button styling */
@@ -115,4 +114,11 @@
 
 .arrow-icon {
   font-size: 14px;
+}
+@media screen and (min-width: 775px) {
+  .contact-fields input,
+  .contact-fields select {
+    /* width: calc(50% - 6px);
+    margin: 3px; */
+  }
 }

@@ -16,8 +16,7 @@
   display: inline;
 }
 
-.short-month-name,
-.mini-month-name {
+.short-month-name {
   display: none;
 }
 
@@ -50,12 +49,11 @@
     padding-top: 2px;
   }
   
-  .full-month-name,
-  .short-month-name {
+  .full-month-name {
     display: none;
   }
   
-  .mini-month-name {
+  .short-month-name {
     display: inline;
   }
 }
