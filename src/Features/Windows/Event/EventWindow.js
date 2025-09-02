@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import "./EventWindow.css"
-import { setSelectedEventID } from '../../Global/eventsSlice'
-import Window from './Window'
-import ContactBox from '../Contacts/ContactBox'
+import { setSelectedEventID } from '../../../Global/eventsSlice'
+import Window from '../Window'
+import ContactBox from '../../Contacts/ContactBox'
+import { eventStatusClasses } from '../../Events/EventsLoader'
 
 export default function EventWindow() {
     
@@ -38,10 +39,8 @@ export default function EventWindow() {
         <Window 
             onClose={() => dispatch(setSelectedEventID())}
             className="eventWindow"
+            title=" "
         >
-            <div className="eventWindowHeader">
-                {/* <input type='date'></input> */}
-            </div>
             
             <div className="eventWindowContent">
                 <div className='eventWindowLeft'>
@@ -57,11 +56,12 @@ export default function EventWindow() {
                         <div className="input-row">
                             <input type="date"></input>
                             <select>
-                                <option>Status</option>
-                                <option>Complete</option>
-                                <option>Scheduled</option>
-                                <option>Positive</option>
-                                <option>Cancelled</option>
+                                <option value="">Status</option>
+                                {Object.keys(eventStatusClasses).map((displayName) => (
+                                    <option key={displayName} value={eventStatusClasses[displayName]}>
+                                        {displayName}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div className="input-row">

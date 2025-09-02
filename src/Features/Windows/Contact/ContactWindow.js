@@ -1,8 +1,9 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import './ContactWindow.css'
-import Window from './Window'
-import { setSelectedContactID } from '../../Global/contactsSlice'
+import Window from '../Window'
+import { setSelectedContactID } from '../../../Global/contactsSlice'
+import ContactBox from '../../Contacts/ContactBox'
 
 export default function ContactWindow() {
     const dispatch = useDispatch()
@@ -17,11 +18,10 @@ export default function ContactWindow() {
         <Window 
             onClose={() => dispatch(setSelectedContactID(null))}
             className="contactWindow"
+            title=" "
         >
-            <div className="contactWindowContent">
-                <div className="contactIdDisplay">
-                    Selected Contact ID: {selectedContactID}
-                </div>
+            <div>
+                <ContactBox contactID={selectedContactID}></ContactBox>
             </div>
         </Window>
     )

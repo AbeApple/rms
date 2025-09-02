@@ -52,10 +52,16 @@
 .dayBox.today {
   box-shadow: 0 0 8px 2px rgba(66, 133, 244, 0.5);
   border: 1px solid #4285f4;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 .dayBox:hover{
   background-color: rgba(255, 255, 255, 0.2);
+}
+.dayBox.today:hover {
+  box-shadow: 0 0 12px 4px rgba(52, 116, 219, 0.7);
+  border: 1px solid #4285f4;
+  background-color: rgba(255, 255, 255, 0.6);
 }
 .dayBoxOuterPad{
   margin-bottom: 25px;

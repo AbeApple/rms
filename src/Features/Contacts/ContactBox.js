@@ -4,6 +4,8 @@ import { setSelectedContactID } from '../../Global/contactsSlice';
 // import ContactSelector from './ContactSelector';
 import ContactSearchAntD from './ContactSearchAntD';
 import './ContactBox.css';
+import { setImagesArray } from '../../Global/store';
+import InputCopy from '../../Components/InputCopy';
 
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
@@ -58,7 +60,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       />
       
       <div className="contact-details-container">
-        <div className="contact-image">
+        <div 
+          className="contact-image" 
+        >
           {contactData?.image?.downloadURL ? (
             <img 
               src={contactData.image.downloadURL} 
@@ -66,7 +70,10 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               className="contact-img"
             />
           ) : (
-            <div className="image-placeholder">
+            <div 
+              className="image-placeholder"
+              onClick={()=>dispatch(setImagesArray([contactData?.image?.downloadURL]))}
+            >
               {/* Default placeholder when no image is available */}
             </div>
           )}
@@ -75,6 +82,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
           </button>
         </div>
         
+        {/* Info fields */}
         <div className="contact-fields">
           <div>
             <select>
@@ -87,17 +95,23 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             <input placeholder="Address"></input>
           </div>
           <div>
-            <input placeholder="Email"></input>
+            <InputCopy placeholder="Email"></InputCopy>
             <input placeholder="Phone"></input>
             <input placeholder="Facebook"></input>
           </div>
         
         </div>
       </div>
-      
+
+      {/* Note */}
       <div>
         <textarea placeholder='Note'></textarea>
       </div>
+
+      {/* Collapsable boxes with the title on the top left like the material ui auto complete title */}
+      <div>Dependencies</div>
+      <div>Stats</div>
+
     </div>
   );
 }

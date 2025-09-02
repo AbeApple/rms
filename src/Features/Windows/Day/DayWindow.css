@@ -1,19 +1,3 @@
-/* Header section styling */
-.dayWindowHeader {
-    padding: 10px;
-    border-bottom: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.dayWindowHeader input[type="date"] {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 150px;
-}
-
 /* Container for the content area */
 .dayWindowContent {
     display: flex;
@@ -21,7 +5,27 @@
     height: calc(100% - 50px); /* Subtract header height + 20px adjustment */
     width: 100%;
 }
+.dayWindowTop{
+    display: flex;
+    justify-content: space-between;
+    margin: 0 5px;
+}
 
+/* These two classes should be combined */
+.dayWindowTop div{
+    width: calc(50% - 2px);
+    height: 32px;
+    box-sizing: border-box;
+    vertical-align: top;
+    margin: 0;
+}
+.dayWindowTop input{
+    width: calc(50% - 2px);
+    height: 32px;
+    box-sizing: border-box;
+    vertical-align: top;
+    margin: 0;
+}
 /* Events section */
 .dayWindowEvents, .dayWindowEvents {
     flex: 1;

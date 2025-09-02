@@ -1,7 +1,8 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setSelectedEventID } from '../../Global/eventsSlice'
-import "./EventDisplay.css"
+import "./Events.css"
+import { eventStatusClasses } from './EventsLoader'
 
 function EventDisplay({eventData, onClick, className = ""}) {
   // Get the selected event ID from Redux store
@@ -18,10 +19,10 @@ function EventDisplay({eventData, onClick, className = ""}) {
       dispatch(setSelectedEventID(eventData?.id));
     }
   };
-
+  
   return (
     <div 
-      className={`eventDisplay ` + className}
+      className={`eventDisplay ${eventStatusClasses[eventData?.status]} `}
       onClick={handleClick}
     >
       {eventData?.title}

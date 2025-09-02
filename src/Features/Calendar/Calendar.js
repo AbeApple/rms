@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Month from './Components/Month';
 import './Calendar.css';
-import DayWindow from '../Windows/DayWindow';
+import DayWindow from '../Windows/Day/DayWindow';
 import useMonthObserver from './hooks/useMonthObserver';
 import WeekdayBar from './Components/WeekdayBar';
 import { isMobile } from 'react-device-detect';

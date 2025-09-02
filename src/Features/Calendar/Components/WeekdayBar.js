@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { scrollToToday } from '../../../Global/functions'
-import { setShowSettings } from '../../../Global/store'
+import { setShowMenu } from '../../../Global/store'
 import homeIcon from './icons/home.svg'
 import menuIcon from './icons/menu.svg'
 import './WeekdayBar.css'
@@ -48,7 +48,7 @@ export default function WeekdayBar() {
       <span className='mini-day-name'>F</span>
     </div>
     <div className="weekdayBox">
-      <div className='menuButtonContainer' onClick={() => dispatch(setShowSettings(true))}>
+      <div className='menuButtonContainer' onClick={() => dispatch(setShowMenu(true))}>
         <img src={menuIcon} alt="Menu" className='menuButtonIcon' />
       </div>
 

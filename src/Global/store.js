@@ -7,16 +7,20 @@ import { yearMonthString } from './functions';
 const uiSlice = createSlice({
   name: 'ui',
   initialState: {
-    showSettings: false,
+    showMenu: false,
+    imagesArray: null,
   },
   reducers: {
-    setShowSettings(state, action) {
-      state.showSettings = action.payload;
+    setShowMenu(state, action) {
+      state.showMenu = action.payload;
+    },
+    setImagesArray(state, action) {
+      state.imagesArray = action.payload;
     },
   },
 });
 
-export const { setShowSettings } = uiSlice.actions;
+export const { setShowMenu, setImagesArray } = uiSlice.actions;
 
 // Slice to track visible months and selected day
 const calendarSlice = createSlice({
