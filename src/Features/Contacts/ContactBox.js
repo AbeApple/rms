@@ -68,14 +68,10 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               src={contactData.image.downloadURL} 
               alt={contactData.name || 'Contact'} 
               className="contact-img"
+              onClick={()=>dispatch(setImagesArray([contactData?.image?.downloadURL]))}
             />
           ) : (
-            <div 
-              className="image-placeholder"
-              onClick={()=>dispatch(setImagesArray([contactData?.image?.downloadURL]))}
-            >
-              {/* Default placeholder when no image is available */}
-            </div>
+            <div className="image-placeholder"></div>
           )}
           <button className="open-button" onClick={() => dispatch(setSelectedContactID(selectedContactId))}>
             Open <span className="arrow-icon">↗</span>
@@ -92,12 +88,12 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               <option>Positive</option>
               <option>Cancelled</option>
             </select>
-            <input placeholder="Address"></input>
+            <InputCopy placeholder="Address"/>
           </div>
           <div>
-            <InputCopy placeholder="Email"></InputCopy>
-            <input placeholder="Phone"></input>
-            <input placeholder="Facebook"></input>
+            <InputCopy placeholder="Email"/>
+            <InputCopy placeholder="Phone"/>
+            <InputCopy placeholder="Facebook"/>
           </div>
         
         </div>

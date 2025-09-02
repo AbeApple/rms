@@ -15,6 +15,7 @@ const uiSlice = createSlice({
       state.showMenu = action.payload;
     },
     setImagesArray(state, action) {
+      console.log("setImagesArray ", action.payload)
       state.imagesArray = action.payload;
     },
   },

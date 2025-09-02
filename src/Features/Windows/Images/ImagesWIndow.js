@@ -36,7 +36,7 @@ export default function ImagesWindow(){
             >
                 {">"}
             </div>
-            <div>{(index + 1) + " of " + imagesArray?.length}</div>
+            <div className="imageArrayIndex">{(index + 1) + " of " + imagesArray?.length}</div>
         </Window>
     )
 }
