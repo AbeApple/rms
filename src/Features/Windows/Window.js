@@ -8,8 +8,8 @@ export default function Window({onClose, title, children, className = ''}) {
 
   return (
     <div className={`window ${className}`} style={windowStyle}>
-        {onClose && <div className='closeButton' onClick={onClose}>x</div>}
-        {title && <div className='windowHeader'>{title}</div>}
+        {onClose && <div className='close-button' onClick={onClose}>x</div>}
+        {title && <div className='window-header'>{title}</div>}
         {children}
     </div>
   )

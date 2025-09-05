@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setContacts } from '../../Global/contactsSlice';
+import { supabase } from '../../DB/Supabase';
 
 // Sample contact data
 const sampleContacts = {
@@ -52,9 +53,28 @@ export default function ContactsLoader() {
   
   // Load contacts into Redux store on component mount
   useEffect(() => {
-    loadContactsToStore();
+    loadContacts();
   }, []);
   
+  async function loadContacts() {
+    try {
+      // Query contacts table and select only needed fields: id, name, main_image
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('id, name, main_image')
+        .order('name', { ascending: true });
+      
+        dispatch(setContacts(data))
+      
+        if (error) throw error;
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      return { data: [], error };
+    }
+  };
+
   // Function to load contacts into the global state
   const loadContactsToStore = () => {
     dispatch(setContacts(sampleContacts));

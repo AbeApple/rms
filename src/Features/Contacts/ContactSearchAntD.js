@@ -2,35 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { AutoComplete, Input, Button, Avatar } from 'antd';
 import { EditOutlined, SearchOutlined } from '@ant-design/icons';
+import InputSupabase from '../../DB/Input/InputSupabase';
 import './ContactSearchAntD.css';
 
-function ContactSearchAntD({ initialContactId, onContactSelected }) {
-  const [mode, setMode] = useState('search'); // 'search' or 'edit'
+function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{} }) {
+  const [mode, setMode] = useState(initialContactId ? 'edit' : 'search'); // 'search' or 'edit'
   const [selectedContactId, setSelectedContactId] = useState(initialContactId || null);
-  const [inputValue, setInputValue] = useState('');
+  const [contactName, setContactName] = useState('');
   
   // Get contacts from Redux store
-  const contacts = useSelector(state => state.contacts.contacts);
-  
-  // Convert contacts object to array for easier filtering
-  const contactsArray = Object.values(contacts || {});
-  
-  // Set input value when selected contact changes
-  useEffect(() => {
-    if (selectedContactId && contacts[selectedContactId]) {
-      setInputValue(contacts[selectedContactId].name);
-    } else {
-      setInputValue('');
-    }
-  }, [selectedContactId, contacts]);
+  const contactsArray = useSelector(state => state.contacts.contacts);
   
   // Handle contact selection
   const handleContactSelect = (value, option) => {
     const contactId = option.key;
     setSelectedContactId(contactId);
-    if (onContactSelected) {
-      onContactSelected(contactId);
-    }
+    onContactSelected(contactId);
+    // Switch to edit mode when a contact is selected
+    setMode('edit');
   };
 
   // Toggle between search and edit mode
@@ -54,6 +43,30 @@ function ContactSearchAntD({ initialContactId, onContactSelected }) {
     value: contact.name,
     key: contact.id
   }));
+  
+  // Find selected contact name when ID changes
+  useEffect(() => {
+    if (selectedContactId) {
+      const selectedContact = contactsArray.find(contact => contact.id === selectedContactId);
+      if (selectedContact) {
+        setContactName(selectedContact.name);
+      }
+    } else {
+      setContactName('');
+    }
+  }, [selectedContactId, contactsArray]);
+  
+  // Set initial mode and load contact name based on initialContactId
+  useEffect(() => {
+    if (initialContactId) {
+      setMode('edit');
+      // Find the contact name for the initial contact ID
+      const initialContact = contactsArray.find(contact => contact.id === initialContactId);
+      if (initialContact) {
+        setContactName(initialContact.name);
+      }
+    }
+  }, [initialContactId, contactsArray]);
 
   return (
     <div className="contact-search-antd">
@@ -69,17 +82,37 @@ function ContactSearchAntD({ initialContactId, onContactSelected }) {
             options={options}
             style={{ width: '100%' }}
             onSelect={handleContactSelect}
-            value={inputValue}
-            onChange={setInputValue}
             placeholder="Search contacts"
             className="contact-autocomplete"
           />
         ) : (
-          <Input
+          <InputSupabase
+            table="contacts"
+            column="name"
+            recordId={selectedContactId || 'new'}
+            defaultValue={contactName}
+            type="text"
             placeholder="Contact name"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
             className="contact-input"
+            viewModeOverride={false} // Always in edit mode
+            onSaved={(value, newId) => {
+              console.log('[ContactSearchAntD] Input timeout (500ms delay)');
+              if (newId) {
+                console.log(`[ContactSearchAntD] Created new contact with ID: ${newId}`);
+                setSelectedContactId(newId);
+                onContactSelected(newId);
+              } else {
+                console.log(`[ContactSearchAntD] Updated contact ${selectedContactId}`);
+                onContactSelected(selectedContactId);
+              }
+              // Stay in edit mode after saving
+            }}
+            onCreatedNew={(value, newId) => {
+              console.log(`[ContactSearchAntD] Created new contact with ID: ${newId}`);
+              setSelectedContactId(newId);
+              onContactSelected(newId);
+              setContactName(value);
+            }}
           />
         )}
       </div>

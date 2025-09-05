@@ -151,11 +151,11 @@ function Calendar() {
           }
           
           // Prevent scrolling all the way to the top
-          // If scroll position is at the very top (0), push it down slightly
-          if (scrollPosition === 0) {
+          // If scroll position is at the very top (0), pu it down slightly
+          if (scrollPosition <= 2) {
             // Use a small offset (2px) to keep it just slightly scrolled
             requestAnimationFrame(() => {
-              scroller.scrollTop = 2;
+              scroller.scrollTop = 5;
             });
           }
         }

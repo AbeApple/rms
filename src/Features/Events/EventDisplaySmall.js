@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setSelectedEventID } from '../../Global/eventsSlice'
 import "./Events.css"
 import { eventStatusClasses } from './EventsLoader'
+import { isMobile } from 'react-device-detect'
 
 function EventDisplaySmall({eventData, onClick, className = ""}) {
   // Get the selected event ID from Redux store
@@ -10,13 +11,17 @@ function EventDisplaySmall({eventData, onClick, className = ""}) {
   const dispatch = useDispatch();
   
   // Handle click event
-  const handleClick = () => {
-    if (onClick) {
-      // Use the provided onClick handler if available
-      onClick();
-    } else {
-      // Otherwise dispatch the action directly
+  const handleClick = (e) => {
+    if (!isMobile) {
+      // On desktop: prevent click propagation and open event window
+      e.stopPropagation();
       dispatch(setSelectedEventID(eventData?.id));
+    } else {
+      // On mobile: allow click to propagate to parent (day box)
+      // which will open the day window
+      if (onClick) {
+        onClick();
+      }
     }
   };
 

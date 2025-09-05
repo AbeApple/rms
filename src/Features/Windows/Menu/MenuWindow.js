@@ -12,7 +12,7 @@ export default function MenuWindow() {
     const dispatch = useDispatch()
 
     const [tab, setTab] = useState("Search")
-    const tabs = ["Search", "Stats", "Settings"]
+    const tabs = ["Search", "Notes", "Stats", "Settings"]
 
     if (!showMenu)
         return (<></>)

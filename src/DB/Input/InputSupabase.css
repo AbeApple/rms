@@ -1,0 +1,175 @@
+/* Minimal styling for inputs */
+input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    padding: 3px 8px;
+    margin: 0;
+    border: 1px solid #ccc;
+    background-color: white;
+    box-sizing: border-box;
+    height: 28px;
+}
+
+/* Container styling */
+.input-container {
+    display: inline-block;
+    width: auto;
+    margin: 2px;
+}
+
+/* Full width support */
+.input-container.full-width,
+.input-container.full-width input,
+.input-container.full-width textarea,
+.input-container.full-width select,
+input.full-width,
+textarea.full-width,
+select.full-width {
+    width: 100%;
+    display: block;
+}
+
+textarea {
+    min-height: 60px;
+    height: auto;
+}
+
+span + input,
+span + textarea,
+span + select {
+    margin-left: 5px;
+}
+
+/* Image Uploader Styles */
+.imageUploader{
+    height: 100%; 
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    border: 1px solid #ddd;
+    min-height: 200px;
+}
+.imageUploadDropZone{
+    height: 200px;
+    width: 100%;
+    display: flex;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.24);
+    text-align: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.imagePreview{
+    width: calc(100% - 20px);
+    margin: 10px;
+    height: auto;
+    max-height: 600px;
+    object-fit: contain;
+}
+.imageUploaderButtons{
+    padding-bottom: 10px;
+    bottom: 0;
+    width: 100%;
+}
+.imageUploaderOptionButton{
+    border-radius: 0;
+    background-color: rgb(210, 210, 210);
+    padding: 5px 10px;
+    width: 200px;
+}
+
+/* New Image Uploader style */
+.imgSupabaseLabel{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.imgSupabaseView{
+    position: relative;
+}
+.imgSupabaseView img{
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* Delete button styles */
+.deleteImageBtn {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    color: rgb(146, 0, 0);
+    background-color: rgba(242, 186, 186, 0.468);
+    border: 1px solid white;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 5;
+    user-select: none;
+}
+
+/* Progress Bar */
+.progressBar{
+    position: absolute;
+    bottom: 5px;
+    width: 90%;
+    margin-left: 5%;
+    z-index: 2;
+    background-color: rgba(12, 110, 221, 0.37);
+    border-radius: 3px;
+    border: 1px solid rgb(4, 61, 128);
+    text-align: center;
+}
+.progressBarInner{
+    height: 100%;
+    background-color: rgba(12, 110, 221, 1);
+    width: 50%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+}
+
+/* Image container styles */
+.mainImageContainer img, .secondaryImageContainer img, .profileBannerContainer img, .profileMainImageContainer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mainImageContainer, .secondaryImageContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.profileBannerContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.profileMainImageContainer {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+.half-width{
+    width: calc(50% - 2px);
+}
+.full-width{
+    width: 100%;
+}

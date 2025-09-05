@@ -15,16 +15,6 @@
   width: 100%;
 }
 
-/* Contact box input styling */
-.contact-box input,
-.contact-box select {
-  padding: 5px 8px;
-  margin-bottom: 4px;
-  box-sizing: border-box;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
 /* Default width for inputs */
 .contact-box > div > input,
 .contact-box > div > select {

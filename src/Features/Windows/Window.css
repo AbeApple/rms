@@ -1,24 +1,25 @@
 .window{
     height: 95vh;
     width: 95vw;
+    max-width: 1200px;
     border-radius: 5px;
     background-color: rgba(73, 69, 79, 0.9);
     position: fixed;
     top: 2%;
-    left: 2%;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 5px;
     box-sizing: border-box;
     z-index: 2;
-    /* max-width: 1200px; */
 }
-.windowHeader{
+.window-header{
     height: 24px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
-.closeButton{
+.close-button{
     position: absolute;
     top: 5px;
     right: 5px;
@@ -34,6 +35,18 @@
     transition: 500ms;
     background-color: rgba(255, 255, 255, 0.2);
 }
-.closeButton:hover{
+.close-button:hover{
     background-color: rgba(255, 255, 255, 0.4);
+}
+/* This is now defined in EventWindow.css as .row */
+/* Keeping this for backward compatibility */
+.input-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 3px 0;
+    width: 100%;
+}
+.input-row div{
+    flex: 1;
 }

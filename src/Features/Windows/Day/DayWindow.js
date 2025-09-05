@@ -2,7 +2,7 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import "./DayWindow.css"
 import { setSelectedDay } from '../../../Global/store'
-import { setSelectedEventID } from '../../../Global/eventsSlice'
+import { setSelectedEventID, setNewEventDate } from '../../../Global/eventsSlice'
 import { dateString } from '../../../Global/functions'
 import EventDisplay from '../../Events/EventDisplay'
 import Window from '../Window'
@@ -31,7 +31,11 @@ export default function DayWindow() {
                             <input type="date" defaultValue={selectedDay}></input>
                             <div 
                                 className='eventDisplay newEvent eventDisplayLarger'
-                                onClick={() => dispatch(setSelectedEventID('new'))}
+                                onClick={() => {
+                                    // Set the new event date first, then open the event window
+                                    dispatch(setNewEventDate(selectedDay));
+                                    dispatch(setSelectedEventID('new'));
+                                }}
                             >
                                 + New Event
                             </div>
