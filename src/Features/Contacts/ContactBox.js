@@ -31,7 +31,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       console.log('ContactBox - Notifying parent of contact ID change:', selectedContactId, " from ", contactID);
       onContactIDChanged(selectedContactId);
     }
-  }, [selectedContactId, contactID, onContactIDChanged]);
+  }, [selectedContactId, contactID]);
   
   // Load contact data when contactID changes
   useEffect(() => {
@@ -46,7 +46,6 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const handleContactSelected = (contactID) => {
     console.log("contact selected: ", contactID)
     setSelectedContactId(contactID);
-    onContactIDChanged(contactID)
   };
 
   // get contact data from supabase
@@ -96,8 +95,6 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
 
   return (
     <div className="contact-box">
-      {isLoading&&"Loading..."}
-      {"contactID:  "+contactID}
       {/* Original Material UI ContactSelector - commented out
       <ContactSelector 
         initialContactId={selectedContactId} 
@@ -105,7 +102,8 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       /> */}
       <ContactSearchAntD 
         initialContactId={selectedContactId} 
-        onContactSelected={handleContactSelected} 
+        onContactSelected={handleContactSelected}
+        contactData={contactData}
       />
       
       <div className="contact-details-container">
@@ -126,7 +124,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             Open <span className="arrow-icon">↗</span>
           </button>
         </div>
-        
+      
         {/* Info fields */}
         <div className="contact-fields">
           <div>
@@ -208,6 +206,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       </div>
 
       {/* Collapsable boxes with the title on the top left like the material ui auto complete title */}
+      <div>ID: {"contactID:"+contactID}</div>
       <div>Dependencies</div>
       <div>Stats</div>
 

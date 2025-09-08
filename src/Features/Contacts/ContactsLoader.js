@@ -64,9 +64,16 @@ export default function ContactsLoader() {
         .select('id, name, main_image')
         .order('name', { ascending: true });
       
-        dispatch(setContacts(data))
+      if (error) throw error;
       
-        if (error) throw error;
+      // Transform array into object with contactID as keys
+      const contactsObject = {};
+      data.forEach(contact => {
+        contactsObject[contact.id] = contact;
+      });
+      
+      // Dispatch the contacts object to Redux store
+      dispatch(setContacts(contactsObject));
 
       return { data, error: null };
     } catch (error) {
@@ -75,11 +82,6 @@ export default function ContactsLoader() {
     }
   };
 
-  // Function to load contacts into the global state
-  const loadContactsToStore = () => {
-    dispatch(setContacts(sampleContacts));
-  };
-  
   // This component doesn't render anything visible
   return null;
 }

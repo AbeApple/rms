@@ -81,7 +81,9 @@
 .action-button:hover {
     background-color: #1976d2;
 }
-
+.textarea-container-event-window{
+    height: 230px;
+}
 /* Mobile view (screen width less than 768px) */
 @media (max-width: 768px) {
     .content-area {

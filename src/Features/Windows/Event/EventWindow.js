@@ -318,7 +318,7 @@ export default function EventWindow() {
                                 // showCopyButton
                             />
                         </div>
-                        <div className="textarea-container">
+                        <div className="textarea-container textarea-container-event-window">
                             <InputSupabase
                                 table="events"
                                 column="note"

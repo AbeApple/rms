@@ -214,8 +214,8 @@ export const eventStatusClasses = {
 const sortEventsByStartTime = (events) => {
   return [...events].sort((a, b) => {
     // Convert time strings to comparable values
-    const timeA = a.startTime ? a.startTime.replace(':', '') : '9999';
-    const timeB = b.startTime ? b.startTime.replace(':', '') : '9999';
+    const timeA = a.start_time ? a.start_time.replace(':', '') : '9999';
+    const timeB = b.start_time ? b.start_time.replace(':', '') : '9999';
     return timeA - timeB;
   });
 };
@@ -290,24 +290,13 @@ export default function EventsLoader() {
       eventsData.forEach(event => {
         const dateKey = event.date; // Date is already in YYYY-MM-DD format
         
-        // Create event object with proper field names
-        const eventObject = {
-          id: event.id,
-          title: event.title,
-          date: event.date,
-          status: event.status,
-          contactID: event.contact_id,
-          startTime: event.start_time,
-          endTime: event.end_time
-        };
-        
         // Initialize array for this date if it doesn't exist
         if (!organizedEvents[dateKey]) {
           organizedEvents[dateKey] = [];
         }
         
-        // Add event to the array for this date
-        organizedEvents[dateKey].push(eventObject);
+        // Add event directly to the array for this date
+        organizedEvents[dateKey].push(event);
       });
       
       // Sort events by start time for each date using the helper function

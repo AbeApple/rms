@@ -5,13 +5,13 @@ import { EditOutlined, SearchOutlined } from '@ant-design/icons';
 import InputSupabase from '../../DB/Input/InputSupabase';
 import './ContactSearchAntD.css';
 
-function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{} }) {
+function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{}, contactData }) {
   const [mode, setMode] = useState(initialContactId ? 'edit' : 'search'); // 'search' or 'edit'
   const [selectedContactId, setSelectedContactId] = useState(initialContactId || null);
   const [contactName, setContactName] = useState('');
   
   // Get contacts from Redux store
-  const contactsArray = useSelector(state => state.contacts.contacts);
+  const contactsObj = useSelector(state => state.contacts.contacts);
   
   // Handle contact selection
   const handleContactSelect = (value, option) => {
@@ -28,7 +28,7 @@ function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{} }) {
   };
 
   // Format options for AutoComplete
-  const options = contactsArray.map(contact => ({
+  const options = Object.values(contactsObj).map(contact => ({
     label: (
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <Avatar 
@@ -46,27 +46,29 @@ function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{} }) {
   
   // Find selected contact name when ID changes
   useEffect(() => {
-    if (selectedContactId) {
-      const selectedContact = contactsArray.find(contact => contact.id === selectedContactId);
-      if (selectedContact) {
-        setContactName(selectedContact.name);
-      }
+    console.log("!*!*!*!*! contact search selectedContactId: ", selectedContactId)
+    if (selectedContactId && contactsObj[selectedContactId]) {
+      console.log("selectedContact: ", contactsObj[selectedContactId])
+      setContactName(contactsObj[selectedContactId].name);
     } else {
       setContactName('');
     }
-  }, [selectedContactId, contactsArray]);
+  }, [selectedContactId, contactsObj]);
   
   // Set initial mode and load contact name based on initialContactId
   useEffect(() => {
+    console.log("!*!*!*!*!initialContactId: ", initialContactId)
     if (initialContactId) {
       setMode('edit');
-      // Find the contact name for the initial contact ID
-      const initialContact = contactsArray.find(contact => contact.id === initialContactId);
+      console.log("set to edit")
+      // Get the contact directly from the object using the ID as key
+      const initialContact = contactsObj[initialContactId];
+      console.log("initialContact: ", initialContact)
       if (initialContact) {
         setContactName(initialContact.name);
       }
     }
-  }, [initialContactId, contactsArray]);
+  }, [initialContactId, contactsObj]);
 
   return (
     <div className="contact-search-antd">
@@ -90,7 +92,7 @@ function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{} }) {
             table="contacts"
             column="name"
             recordId={selectedContactId || 'new'}
-            defaultValue={contactName}
+            defaultValue={contactData?.name}
             type="text"
             placeholder="Contact name"
             className="contact-input"
