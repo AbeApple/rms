@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { reloadEvents, setEvents } from '../../../../Global/eventsSlice';
-import { setContacts } from '../../../../Global/contactsSlice';
+import { setContacts, setSelectedContactID } from '../../../../Global/contactsSlice';
 import { supabase } from '../../../../DB/Supabase';
 
 export default function Search() {
@@ -119,6 +119,20 @@ export default function Search() {
                 }}
             >
                 Log Out
+            </button>
+
+            <button 
+                onClick={()=>dispatch(setSelectedContactID('new'))}
+                style={{ 
+                    backgroundColor: '#1976d2', 
+                    color: 'white', 
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                }}
+            >
+                Create Contact
             </button>
         </div>
     );

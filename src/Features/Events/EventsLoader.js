@@ -225,17 +225,18 @@ export default function EventsLoader() {
   const startMonth = useSelector(state => state.calendar.startMonth);
   const endMonth = useSelector(state => state.calendar.endMonth);
   const reloadTrigger = useSelector(state => state.events.reloadTrigger);
+  const userId = useSelector(state => state.auth.userId);
   
   // Load events into Redux store on component mount, when date range changes, or when reload is triggered
   useEffect(() => {
-    if (startMonth && endMonth) {
-      console.log('Loading events due to date change or reload trigger:', { startMonth, endMonth, reloadTrigger });
+    if (startMonth && endMonth && userId) {
+      console.log('Loading events due to date change or reload trigger:', { startMonth, endMonth, reloadTrigger, userId });
       loadEventsFromSupabase();
     } else {
       // If no date range is available, initialize with empty events object
       dispatch(setEvents({}));
     }
-  }, [startMonth, endMonth, reloadTrigger]);
+  }, [startMonth, endMonth, reloadTrigger, userId]);
   
   /**
    * Fetch events directly from Supabase within a specific date range, excluding note data
@@ -249,6 +250,7 @@ export default function EventsLoader() {
       const { data, error } = await supabase
         .from('events')
         .select('id, title, date, status, contact_id, start_time, end_time')
+        .eq('user_id', userId)
         .gte('date', startDateStr)
         .lte('date', endDateStr)
         .order('date', { ascending: true });
@@ -273,7 +275,7 @@ export default function EventsLoader() {
       const startDateStr = dateString(startDate);
       const endDateStr = dateString(endDate);
       
-      console.log(`Fetching events between ${startDateStr} and ${endDateStr}`);
+      console.log(`Fetching events between ${startDateStr} and ${endDateStr} for user ${userId}`);
       
       // Fetch events within date range
       const { data: eventsData, error } = await fetchEventsInDateRange(startDateStr, endDateStr);

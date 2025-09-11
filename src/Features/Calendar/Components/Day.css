@@ -6,7 +6,7 @@
   cursor: pointer;
   vertical-align: bottom;
   padding: 2px;
-  padding-left: 0px;
+  padding-left: 1px;
   padding-right: 3px;
   box-sizing: border-box;
   position: relative;
@@ -32,6 +32,7 @@
   border: 1px solid black;
   height: 100%;
   width: 100%;
+  box-shadow: 1px 2px 8px rgba(223, 239, 255, 0.2);
 }
 .dayBoxEvents{
   overflow-y: auto;

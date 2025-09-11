@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setContacts } from '../../Global/contactsSlice';
 import { supabase } from '../../DB/Supabase';
 
@@ -50,11 +50,17 @@ const sampleContacts = {
 
 export default function ContactsLoader() {
   const dispatch = useDispatch();
+  const userId = useSelector(state => state.auth.userId);
   
   // Load contacts into Redux store on component mount
   useEffect(() => {
-    loadContacts();
-  }, []);
+    if (userId) {
+      loadContacts();
+    } else {
+      // Clear contacts if no user
+      dispatch(setContacts({}));
+    }
+  }, [userId]);
   
   async function loadContacts() {
     try {
@@ -62,6 +68,7 @@ export default function ContactsLoader() {
       const { data, error } = await supabase
         .from('contacts')
         .select('id, name, main_image')
+        .eq('user_id', userId)
         .order('name', { ascending: true });
       
       if (error) throw error;
