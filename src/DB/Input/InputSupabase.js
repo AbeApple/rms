@@ -42,6 +42,7 @@ export default function InputSupabase(props) {
     showCopyButton,
     placeholder,
     isCreatingRef,
+    defaultStartData = {},
     ...otherProps
   } = props
 
@@ -158,7 +159,7 @@ export default function InputSupabase(props) {
 
       let result = await supabase
       .from(table)
-      .insert({ [column]: formattedValue })
+      .insert({ ...defaultStartData, [column]: formattedValue  })
       .select()
 
       if (result?.error) {
