@@ -14,6 +14,7 @@ import SaveStatusIndicator from '../../Components/SaveStatusIndicator';
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
   const contacts = useSelector(state => state.contacts.contacts)
+  const userId = useSelector(state => state.auth?.userId)
   const [selectedContactIdLocal, setSelectedContactIdLocal] = useState(contactID);
   const [contactData, setContactData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +61,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             .from('contacts')
             .select('*')
             .eq('id', contactID)
+            .eq('user_id', userId)
             .single();
         
         if (error) {
@@ -142,6 +144,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
               onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
               onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+              defaultStartData={{ user_id: userId }}
               className="full-width margin-bottom"
             />
             <InputSupabase
@@ -154,6 +157,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
               onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
               onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+              defaultStartData={{ user_id: userId }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -169,6 +173,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
               onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
               onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+              defaultStartData={{ user_id: userId }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -182,6 +187,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
               onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
               onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+              defaultStartData={{ user_id: userId }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -195,6 +201,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
               onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
               onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+              defaultStartData={{ user_id: userId }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -215,6 +222,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
           onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
           onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
           onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+          defaultStartData={{ user_id: userId }}
           fullWidth={true}
           placeholder="Note"
         />

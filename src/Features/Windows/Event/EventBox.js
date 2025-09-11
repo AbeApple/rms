@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import "./EventWindow.css"
 import { setSelectedEventID, updateEvent, addEvent, reloadEvents, upsertEvent } from '../../../Global/eventsSlice'
-import Window from '../Window'
 import ContactBox from '../../Contacts/ContactBox'
 import { eventStatusClasses } from '../../Events/EventsLoader'
 import InputSupabase from '../../../DB/Input/InputSupabase'
@@ -30,6 +29,7 @@ export default function EventBox() {
     const events = useSelector(state => state.events?.events)
     const selectedEventID = useSelector(state => state.events?.selectedEventID)
     const selectedEventDate = useSelector(state => state.events?.selectedEventDate)
+    const userId = useSelector(state => state.auth?.userId)
     // Starting with the simple data in the global state (contact_id, title, date)
     const [eventData, setEventData] = useState(events && events[selectedEventDate] && events[selectedEventDate].find(event => event?.id === selectedEventID))
     const isCreatingRef = useRef()
@@ -157,11 +157,12 @@ export default function EventBox() {
                 // Create the event object for Redux with snake_case keys
                 const eventForRedux = {
                     id: newEventId,
+                    date: selectedEventDate,
                     ...data[0] // Use the data directly from Supabase which is already in snake_case
                 };
                 
                 // Add the new event to the Redux store
-                dispatch(addEvent({ event: eventForRedux }));
+                dispatch(upsertEvent(eventForRedux));
                 
                 return newEventId;
             }
@@ -177,7 +178,8 @@ export default function EventBox() {
         console.log("event contact id changed: ", contactId)
         // If there is an event id update the event
         if (selectedEventID && selectedEventID !== 'new') {
-            let newEventData = { id: selectedEventID, contact_id: contactId }
+            const eventDate = eventData?.date || selectedEventDate;
+            let newEventData = { id: selectedEventID, contact_id: contactId, date: eventDate }
             console.log("updated event ", newEventData)
             // Update existing event with new contact ID
             await updateEventDb(newEventData);
@@ -219,6 +221,7 @@ export default function EventBox() {
                                 onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
                                 onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
                                 onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+                                defaultStartData={{ user_id: userId, date: selectedEventDate }}
                                 className="half-width"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -233,6 +236,7 @@ export default function EventBox() {
                                 onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
                                 onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
                                 onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+                                defaultStartData={{ user_id: userId, date: selectedEventDate }}
                                 className="half-width"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -248,6 +252,7 @@ export default function EventBox() {
                                 onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
                                 onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
                                 onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+                                defaultStartData={{ user_id: userId, date: selectedEventDate }}
                                 fullWidth={true}
                                 placeholder="Event Title"
                                 isCreatingRef={isCreatingRef}
@@ -264,6 +269,7 @@ export default function EventBox() {
                                 onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
                                 onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
                                 onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+                                defaultStartData={{ user_id: userId, date: selectedEventDate }}
                                 placeholder="Notes"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -279,6 +285,7 @@ export default function EventBox() {
                                 onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
                                 onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
                                 onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+                                defaultStartData={{ user_id: userId, date: selectedEventDate }}
                                 placeholder="Start Time"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -292,6 +299,7 @@ export default function EventBox() {
                                 onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
                                 onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
                                 onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
+                                defaultStartData={{ user_id: userId, date: selectedEventDate }}
                                 placeholder="End Time"
                                 isCreatingRef={isCreatingRef}
                             />

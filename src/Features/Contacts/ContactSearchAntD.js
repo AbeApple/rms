@@ -9,6 +9,7 @@ import { upsertContact } from '../../Global/contactsSlice';
 function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contactData }) {
   const disatch = useDispatch()
   const [mode, setMode] = useState(parentContactId ? 'edit' : 'search');
+  const userId = useSelector(state => state.auth?.userId)
   
   // Get contacts from Redux store
   const contactsObj = useSelector(state => state.contacts.contacts);
@@ -82,6 +83,8 @@ function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contac
             type="text"
             placeholder="Contact name"
             className="contact-input"
+            defaultStartData={{ user_id: userId }}
+
             onSaved={(data) => {
               // When a new contact is created the id will be sent to the parent which will sent it to its parent, they will load and update data accordingly
               console.log(`[ContactSearchAntD] updated contact with ID: ${data.id}`);
