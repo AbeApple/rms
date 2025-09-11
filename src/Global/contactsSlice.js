@@ -18,13 +18,21 @@ const contactsSlice = createSlice({
     // Action is the new contact data (including id)
     upsertContact(state, action) {
       const contact = action.payload;
+      console.log("upsertContact contact: ", contact)
+
       if (!contact?.id) return;
       
+      // Get existing data or create empty object
+      let contactData = state.contacts[contact.id] || {}
+
+      // Add the new data to it
+      contactData = {...contactData, ...action.payload }
+
       // If contact exists, update it, otherwise add it
-      state.contacts[contact.id] = {
-        ...(state.contacts[contact.id] || {}), // Preserve existing data if any
-        ...contact // Override with new data
-      };
+      state.contacts[contact.id] = contactData
+
+      console.log("updated contact data: ", contactData)
+
     }
     // TODO action to remove a contact in global state to keep this in sync with database without needing to reload
   },

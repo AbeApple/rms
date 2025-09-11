@@ -34,7 +34,7 @@ function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contac
           src={contact.image?.downloadURL} 
           style={{ backgroundColor: !contact.image?.downloadURL ? '#1890ff' : 'transparent' }}
         >
-          {!contact.image?.downloadURL && contact.name.charAt(0)}
+          {!contact.image?.downloadURL && contact?.name?.charAt(0)}
         </Avatar>
         <span>{contact.name}</span>
       </div>
@@ -82,9 +82,9 @@ function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contac
             type="text"
             placeholder="Contact name"
             className="contact-input"
-            onCreatedNew={(value, newId) => {
+            onSaved={(value, newId) => {
               // When a new contact is created the id will be sent to the parent which will sent it to its parent, they will load and update data accordingly
-              console.log(`[ContactSearchAntD] Created new contact with ID: ${newId}`);
+              console.log(`[ContactSearchAntD] updated contact with ID: ${newId}`);
               onContactSelected(newId);
               // Also need to put it in the global state so the contacts objects is current
               disatch(upsertContact({id: newId, name: value}))

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedContactID } from '../../Global/contactsSlice';
+import { setSelectedContactID, upsertContact } from '../../Global/contactsSlice';
 // import ContactSelector from './ContactSelector';
 import ContactSearchAntD from './ContactSearchAntD';
 import './ContactBox.css';
@@ -13,33 +13,33 @@ import { eventStatusClasses } from '../Events/EventsLoader';
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
   const contacts = useSelector(state => state.contacts.contacts)
-  const [selectedContactId, setSelectedContactId] = useState(contactID);
+  const [selectedContactIdLocal, setSelectedContactIdLocal] = useState(contactID);
   const [contactData, setContactData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
   // Ensure internal contactID state is in sync with parent component
   useEffect(() => {
-      setSelectedContactId(contactID);
+      setSelectedContactIdLocal(contactID);
   }, [contactID]);
   
   // If contactID in this component becomes different from parent notify parent with callback funciton
   useEffect(() => {
-    console.log('ContactBox - Selected Contact ID changed:', selectedContactId);
+    console.log('ContactBox - Selected Contact ID changed:', selectedContactIdLocal);
     // Only notify parent if the ID actually changed from the initial value
-    if (selectedContactId !== contactID) {
-      console.log('ContactBox - Notifying parent of contact ID change:', selectedContactId, " from ", contactID);
-      onContactIDChanged(selectedContactId);
+    if (selectedContactIdLocal !== contactID) {
+      console.log('ContactBox - Notifying parent of contact ID change:', selectedContactIdLocal, " from ", contactID);
+      onContactIDChanged(selectedContactIdLocal);
     }
-  }, [selectedContactId]);
+  }, [selectedContactIdLocal]);
   
   // Load contact data when contactID changes
   useEffect(() => {
-    if (selectedContactId) {
-      loadContactData(selectedContactId)
+    if (selectedContactIdLocal) {
+      loadContactData(selectedContactIdLocal)
     } else {
       setContactData({});
     }
-  }, [selectedContactId]);
+  }, [selectedContactIdLocal]);
 
 
   // get contact data from supabase
@@ -69,7 +69,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             // Transform the data to match our component's expected format
             setContactData(data);
         } else {
-            console.error(`No contact found with ID: ${selectedContactId}`);
+            console.error(`No contact found with ID: ${selectedContactIdLocal}`);
             // setLoadError(`contact not found`);
         }
     } catch (error) {
@@ -84,21 +84,22 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const handleContactUpdated = (value, recordId, column) => {
     console.log(`Contact updated: ${column} = ${value}`);
     // If a new contat was created update the id (will trigger parent callback too if different from current)
-    setSelectedContactID(recordId)
+    setSelectedContactIdLocal(recordId)
+    dispatch(upsertContact({id: recordId, [column]: value}))
   }
 
   // Handle contact selection from the ContactSelector 
   const handleContactSelected = (contactID) => {
     console.log("contact selected: ", contactID)
     // TODO call directly when done debugging
-    setSelectedContactId(contactID);
+    setSelectedContactIdLocal(contactID);
   };
 
   return (
     <div className="contact-box">
 
       <ContactSearchAntD 
-        parentContactId={selectedContactId} 
+        parentContactId={selectedContactIdLocal} 
         onContactSelected={handleContactSelected}
         contactData={contactData}
       />
@@ -117,7 +118,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
           ) : (
             <div className="image-placeholder"></div>
           )}
-          <button className="open-button" onClick={() => dispatch(setSelectedContactID(selectedContactId))}>
+          <button className="open-button" onClick={() => dispatch(setSelectedContactID(selectedContactIdLocal))}>
             Open <span className="arrow-icon">↗</span>
           </button>
         </div>
@@ -128,7 +129,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             <InputSupabase
               table="contacts"
               column="status"
-              recordId={selectedContactId}
+              recordId={selectedContactIdLocal}
               defaultValue={contactData?.status || ""}
               type="select"
               options={Object.keys(eventStatusClasses)}
@@ -139,7 +140,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             <InputSupabase
               table="contacts"
               column="address"
-              recordId={selectedContactId}
+              recordId={selectedContactIdLocal}
               defaultValue={contactData?.address || ""}
               type="text"
               viewMode={false}
@@ -152,7 +153,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             <InputSupabase
               table="contacts"
               column="email"
-              recordId={selectedContactId}
+              recordId={selectedContactIdLocal}
               defaultValue={contactData?.email || ""}
               type="text"
               viewMode={false}
@@ -163,7 +164,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             <InputSupabase
               table="contacts"
               column="phone"
-              recordId={selectedContactId}
+              recordId={selectedContactIdLocal}
               defaultValue={contactData?.phone || ""}
               type="text"
               viewMode={false}
@@ -174,7 +175,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             <InputSupabase
               table="contacts"
               column="facebook"
-              recordId={selectedContactId}
+              recordId={selectedContactIdLocal}
               defaultValue={contactData?.facebook || ""}
               type="text"
               viewMode={false}
@@ -192,7 +193,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
         <InputSupabase
           table="contacts"
           column="note"
-          recordId={selectedContactId}
+          recordId={selectedContactIdLocal}
           defaultValue={contactData?.note || ""}
           type="textarea"
           viewModeOverride={false}

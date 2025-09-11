@@ -35,7 +35,7 @@ export default function InputSupabase(props) {
     // sends back (new value, id, column name)
     onSaved = ()=>{},
     // sends back (new value, new id, column name)
-    onCreatedNew = ()=>{},
+    onCreatedNew,
     showCopyButton,
     placeholder,
     ...otherProps
@@ -114,10 +114,14 @@ export default function InputSupabase(props) {
         // If successful and we have data, call the callback with the new ID and column name
         if (!result.error && result.data && result.data.length > 0) {
           console.log(`Successfully created new ${table} record with ID: ${result.data[0].id}`)
-          if(onCreatedNew)
+          if(onCreatedNew){
+            console.log("input supabase: onCreatedNew")
             onCreatedNew(formattedValue, result.data[0].id, column, table)
-          else
+          }
+          else{
+            console.log("input supabase: onSaved")
             onSaved(formattedValue, result.data[0].id, column, table)
+          }
         }
       } else {
         // Update existing record
