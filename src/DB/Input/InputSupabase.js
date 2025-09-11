@@ -104,7 +104,7 @@ export default function InputSupabase(props) {
       let result;
       
       // Check if this is a new record or an existing one
-      if (recordId === 'new' || !recordId) {
+      if (!recordId || recordId === 'new') {
         
         result = await supabase
           .from(table)
@@ -114,7 +114,10 @@ export default function InputSupabase(props) {
         // If successful and we have data, call the callback with the new ID and column name
         if (!result.error && result.data && result.data.length > 0) {
           console.log(`Successfully created new ${table} record with ID: ${result.data[0].id}`)
-          onCreatedNew(formattedValue, result.data[0].id, column)
+          if(onCreatedNew)
+            onCreatedNew(formattedValue, result.data[0].id, column, table)
+          else
+            onSaved(formattedValue, result.data[0].id, column, table)
         }
       } else {
         // Update existing record
@@ -191,6 +194,7 @@ export default function InputSupabase(props) {
           onChange={(e) => inputUpdated(e.target.value)}
           defaultValue={defaultValue}
           placeholder={placeholder || column}
+          type={type}
         />
       )}
       {saveError && <small style={{ color: 'red' }}>{saveError}</small>}

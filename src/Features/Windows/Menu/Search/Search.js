@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { setEvents, setReloadTrigger } from '../../../../Global/eventsSlice';
+import { reloadEvents, setEvents } from '../../../../Global/eventsSlice';
 import { supabase } from '../../../../DB/Supabase';
 
 export default function Search() {
@@ -24,7 +24,7 @@ export default function Search() {
                     // Clear events in Redux store
                     dispatch(setEvents({}));
                     // Trigger a reload of events data
-                    dispatch(setReloadTrigger(Date.now()));
+                    dispatch(reloadEvents(Date.now()));
                     alert('All events deleted successfully');
                 }
             } catch (error) {

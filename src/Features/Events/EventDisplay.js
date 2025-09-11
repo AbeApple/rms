@@ -1,67 +1,73 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { setSelectedEventID } from '../../Global/eventsSlice'
+import { setSelectedEventDate, setSelectedEventID } from '../../Global/eventsSlice'
 import "./Events.css"
 import { eventStatusClasses } from './EventsLoader'
+import { isMobile } from 'react-device-detect'
+import { setSelectedDay } from '../../Global/store'
 
-function EventDisplay({eventData, onClick, className = ""}) {
-  // Get the selected event ID from Redux store
-  const selectedEventID = useSelector(state => state.events.selectedEventID);
+function EventDisplay({ eventData, inDayWindow }) {
   // Get contacts from Redux store to display contact name
   const contactsObj = useSelector(state => state.contacts.contacts);
   const dispatch = useDispatch();
   
   // Store contact name in state
-  const [contactName, setContactName] = useState(null);
-  
-  // Handle click event
-  const handleClick = () => {
-    if (onClick) {
-      // Use the provided onClick handler if available
-      onClick();
-    } else {
-      // Otherwise dispatch the action directly
-      dispatch(setSelectedEventID(eventData?.id));
-    }
-  };
-  
-  // Update contact name when contact_id or contacts change
-  useEffect(() => {
-    console.log('EventDisplay - eventData:', eventData);
-    console.log('EventDisplay - contact_id:', eventData?.contact_id);
-    console.log('EventDisplay - contactsObj type:', typeof contactsObj);
-    console.log('EventDisplay - contactsObj keys:', Object.keys(contactsObj));
-    
-    if (eventData?.contact_id) {
-      console.log('EventDisplay - Looking for contact ID:', eventData.contact_id);
-      console.log('EventDisplay - Contact exists in obj?', eventData.contact_id in contactsObj);
-      
-      const contact = contactsObj[eventData.contact_id];
-      console.log('EventDisplay - Contact lookup result:', contact);
-      
-      if (contact) {
-        console.log('EventDisplay - Contact name:', contact.name);
-        setContactName(contact.name);
-      } else {
-        console.log('EventDisplay - No matching contact found');
-        setContactName(null);
+  const [contactData, setContactData] = useState(null);
+
+    // Handle click event
+    const handleClick = (e) => {
+      // If its in the day window it always opens the event window
+      if(inDayWindow){
+        console.log("selecting event")
+        e.stopPropagation(); // prevent clickthrough to the day window
+        dispatch(setSelectedEventID(eventData?.id));
+        dispatch(setSelectedEventDate(eventData?.date));
       }
-    } else {
-      console.log('EventDisplay - No contact_id in event data');
-      setContactName(null);
+      // If its now in the day window (its in a calendar day box)
+      else{
+        // In mobile just open the day window
+        if(isMobile){
+          // This will click through to the day box component and set the selected day ther
+          // dispatch(setSelectedDay(eventData?.date))
+        }
+        // On desktop open the event window
+        else{
+          e.stopPropagation(); // prevent clickthrough to the day window
+          dispatch(setSelectedEventID(eventData?.id));
+          dispatch(setSelectedEventDate(eventData?.date));
+        }
+      }
+    };
+  
+  //  Get contact data from global contacts object when contact_id or contacts change
+  useEffect(() => {
+
+    // IF thre is a contact try to get that contact id from the contacts
+    if (eventData?.contact_id) {
+      // Find the contact
+      const contact = contactsObj[eventData.contact_id];
+
+      // If there is a contact get the data so it can be displayed
+      if (contact) {
+        setContactData(contact);
+      } 
+      // If the matching contact is not found
+      else {
+        setContactData({});
+      }
+    } 
+    // If there is no contact id in the event 
+    else {
+      setContactData({});
     }
   }, [eventData?.contact_id, contactsObj]);
   
-  // Log the current state for debugging
-  console.log('EventDisplay - Current contactName state:', contactName);
-  console.log('EventDisplay - Will display:', eventData?.title || contactName);
-
   return (
     <div 
-      className={`eventDisplay ${eventStatusClasses[eventData?.status]} `}
+      className={`eventDisplay ${inDayWindow ? "":"eventDisplaySmall"} ${eventStatusClasses[eventData?.status]} `}
       onClick={handleClick}
     >
-      <div className="event-title">{eventData?.title || contactName}</div>
+      <div className="event-title">{eventData?.title || contactData?.name}</div>
     </div>
   )
 }

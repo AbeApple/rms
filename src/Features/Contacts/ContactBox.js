@@ -12,18 +12,17 @@ import { eventStatusClasses } from '../Events/EventsLoader';
 
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.contacts)
   const [selectedContactId, setSelectedContactId] = useState(contactID);
   const [contactData, setContactData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Update internal state when prop changes
+  // Ensure internal contactID state is in sync with parent component
   useEffect(() => {
-    if (contactID) {
       setSelectedContactId(contactID);
-    }
   }, [contactID]);
   
-  // Log contactID when it changes and notify parent
+  // If contactID in this component becomes different from parent notify parent with callback funciton
   useEffect(() => {
     console.log('ContactBox - Selected Contact ID changed:', selectedContactId);
     // Only notify parent if the ID actually changed from the initial value
@@ -31,7 +30,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       console.log('ContactBox - Notifying parent of contact ID change:', selectedContactId, " from ", contactID);
       onContactIDChanged(selectedContactId);
     }
-  }, [selectedContactId, contactID]);
+  }, [selectedContactId]);
   
   // Load contact data when contactID changes
   useEffect(() => {
@@ -42,17 +41,15 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
     }
   }, [selectedContactId]);
 
-  // Handle contact selection from the ContactSelector
-  const handleContactSelected = (contactID) => {
-    console.log("contact selected: ", contactID)
-    setSelectedContactId(contactID);
-  };
 
   // get contact data from supabase
   async function loadContactData(contactID){
 
     setIsLoading(true)
          
+    // Get simple data immediately
+    setContactData(contacts && contacts[contactID])
+
     try {
         console.log(`Fetching contact data for ID: ${contactID}`);
         
@@ -77,31 +74,31 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
         }
     } catch (error) {
         console.error('Error loading contact data:', error);
-        // setLoadError(`Error loading contact: ${error.message}`);
+        setIsLoading(false);
     } finally {
         setIsLoading(false);
     }
   }
 
-  // Handle updates to contact data
+  // Handle updates to contact data (is there a purpose of this function?)
   const handleContactUpdated = (value, recordId, column) => {
     console.log(`Contact updated: ${column} = ${value}`);
-    // Update the local state to reflect the change
-    setContactData(prevData => ({
-      ...prevData,
-      [column]: value
-    }));
+    // If a new contat was created update the id (will trigger parent callback too if different from current)
+    setSelectedContactID(recordId)
   }
+
+  // Handle contact selection from the ContactSelector 
+  const handleContactSelected = (contactID) => {
+    console.log("contact selected: ", contactID)
+    // TODO call directly when done debugging
+    setSelectedContactId(contactID);
+  };
 
   return (
     <div className="contact-box">
-      {/* Original Material UI ContactSelector - commented out
-      <ContactSelector 
-        initialContactId={selectedContactId} 
-        onContactSelected={handleContactSelected} 
-      /> */}
+
       <ContactSearchAntD 
-        initialContactId={selectedContactId} 
+        parentContactId={selectedContactId} 
         onContactSelected={handleContactSelected}
         contactData={contactData}
       />

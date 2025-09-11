@@ -18,11 +18,9 @@ export default function ContactWindow() {
         <Window 
             onClose={() => dispatch(setSelectedContactID(null))}
             className="contactWindow"
-            title=" "
+            title="Contact"
         >
-            <div>
-                <ContactBox contactID={selectedContactID}></ContactBox>
-            </div>
+            <ContactBox contactID={selectedContactID}></ContactBox>
         </Window>
     )
 }

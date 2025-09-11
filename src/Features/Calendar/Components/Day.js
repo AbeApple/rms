@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedDay } from '../../../Global/store';
 import { dateString } from '../../../Global/functions';
 import MonthIndicator from './MonthIndicator';
-import EventDisplaySmall from '../../Events/EventDisplaySmall';
+import EventDisplay from '../../Events/EventDisplay';
 
 // Displays the day as a square with the number at the top right
 function Day({ date, monthString}) {
@@ -79,7 +79,7 @@ function Day({ date, monthString}) {
         <div className='dayBoxDate'>{date?.getDate()}</div>
         <div className='dayBoxEvents'>
             {events[dateString(date)]?.map(eventData => (
-              <EventDisplaySmall key={eventData.id} eventData={eventData} onClick={()=>{}}></EventDisplaySmall>
+              <EventDisplay key={eventData.id} eventData={eventData} onClick={()=>{}}/>
             ))}
         </div>
       </div>

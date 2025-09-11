@@ -5,21 +5,21 @@ const eventsSlice = createSlice({
   name: 'events',
   initialState: {
     selectedEventID: null,
+    selectedEventDate: null, // Date for new events in YYYY-MM-DD format
     events: {},  // Format: { 'YYYY-MM-DD': [eventObjects] }
-    newEventDate: null,  // Date for new events in YYYY-MM-DD format
     reloadTrigger: 0  // Counter to trigger event reloads
   },
   reducers: {
     setSelectedEventID(state, action) {
       state.selectedEventID = action.payload;
     },
+    setSelectedEventDate(state, action) {
+      state.selectedEventDate = action.payload;
+    },
     setEvents(state, action) {
       state.events = action.payload;
     },
-    setNewEventDate(state, action) {
-      state.newEventDate = action.payload;
-    },
-    setReloadTrigger(state) {
+    reloadEvents(state) {
       // Increment the counter to trigger a reload
       state.reloadTrigger = state.reloadTrigger + 1;
     },
@@ -92,9 +92,10 @@ const eventsSlice = createSlice({
 // Export actions
 export const { 
   setSelectedEventID,
+  setSelectedEventDate,
   setEvents,
   setNewEventDate,
-  setReloadTrigger,
+  reloadEvents,
   updateEvent,
   addEvent
 } = eventsSlice.actions;

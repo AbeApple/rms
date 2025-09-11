@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { AutoComplete, Input, Button, Avatar } from 'antd';
 import { EditOutlined, SearchOutlined } from '@ant-design/icons';
 import InputSupabase from '../../DB/Input/InputSupabase';
 import './ContactSearchAntD.css';
+import { upsertContact } from '../../Global/contactsSlice';
 
-function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{}, contactData }) {
-  const [mode, setMode] = useState(initialContactId ? 'edit' : 'search'); // 'search' or 'edit'
-  const [selectedContactId, setSelectedContactId] = useState(initialContactId || null);
-  const [contactName, setContactName] = useState('');
+function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contactData }) {
+  const disatch = useDispatch()
+  const [mode, setMode] = useState(parentContactId ? 'edit' : 'search');
   
   // Get contacts from Redux store
   const contactsObj = useSelector(state => state.contacts.contacts);
@@ -16,7 +16,6 @@ function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{}, conta
   // Handle contact selection
   const handleContactSelect = (value, option) => {
     const contactId = option.key;
-    setSelectedContactId(contactId);
     onContactSelected(contactId);
     // Switch to edit mode when a contact is selected
     setMode('edit');
@@ -44,31 +43,18 @@ function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{}, conta
     key: contact.id
   }));
   
-  // Find selected contact name when ID changes
-  useEffect(() => {
-    console.log("!*!*!*!*! contact search selectedContactId: ", selectedContactId)
-    if (selectedContactId && contactsObj[selectedContactId]) {
-      console.log("selectedContact: ", contactsObj[selectedContactId])
-      setContactName(contactsObj[selectedContactId].name);
-    } else {
-      setContactName('');
-    }
-  }, [selectedContactId, contactsObj]);
   
-  // Set initial mode and load contact name based on initialContactId
+  // Set mode when parentContactId is set or removed
   useEffect(() => {
-    console.log("!*!*!*!*!initialContactId: ", initialContactId)
-    if (initialContactId) {
+    console.log("!*!*!*!*!parentContactId changed: ", parentContactId)
+    if (parentContactId) {
       setMode('edit');
       console.log("set to edit")
-      // Get the contact directly from the object using the ID as key
-      const initialContact = contactsObj[initialContactId];
-      console.log("initialContact: ", initialContact)
-      if (initialContact) {
-        setContactName(initialContact.name);
-      }
+    }else{
+      console.log("set to search")
+      setMode('search')
     }
-  }, [initialContactId, contactsObj]);
+  }, [parentContactId, contactsObj]);
 
   return (
     <div className="contact-search-antd">
@@ -91,29 +77,17 @@ function ContactSearchAntD({ initialContactId, onContactSelected = ()=>{}, conta
           <InputSupabase
             table="contacts"
             column="name"
-            recordId={selectedContactId || 'new'}
+            recordId={parentContactId}
             defaultValue={contactData?.name}
             type="text"
             placeholder="Contact name"
             className="contact-input"
-            viewModeOverride={false} // Always in edit mode
-            onSaved={(value, newId) => {
-              console.log('[ContactSearchAntD] Input timeout (500ms delay)');
-              if (newId) {
-                console.log(`[ContactSearchAntD] Created new contact with ID: ${newId}`);
-                setSelectedContactId(newId);
-                onContactSelected(newId);
-              } else {
-                console.log(`[ContactSearchAntD] Updated contact ${selectedContactId}`);
-                onContactSelected(selectedContactId);
-              }
-              // Stay in edit mode after saving
-            }}
             onCreatedNew={(value, newId) => {
+              // When a new contact is created the id will be sent to the parent which will sent it to its parent, they will load and update data accordingly
               console.log(`[ContactSearchAntD] Created new contact with ID: ${newId}`);
-              setSelectedContactId(newId);
               onContactSelected(newId);
-              setContactName(value);
+              // Also need to put it in the global state so the contacts objects is current
+              disatch(upsertContact({id: newId, name: value}))
             }}
           />
         )}
