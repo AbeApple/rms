@@ -9,6 +9,7 @@ import InputCopy from '../../Components/InputCopy';
 import { supabase } from '../../DB/Supabase';
 import InputSupabase from '../../DB/Input/InputSupabase';
 import { eventStatusClasses } from '../Events/EventsLoader';
+import SaveStatusIndicator from '../../Components/SaveStatusIndicator';
 
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const [selectedContactIdLocal, setSelectedContactIdLocal] = useState(contactID);
   const [contactData, setContactData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   
   // Ensure internal contactID state is in sync with parent component
   useEffect(() => {
@@ -96,7 +99,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   };
 
   return (
-    <div className="contact-box">
+    <div className="contact-box" style={{ position: 'relative' }}>
+
+      <SaveStatusIndicator loading={isLoading} saving={isSaving} error={saveError} />
 
       <ContactSearchAntD 
         parentContactId={selectedContactIdLocal} 
@@ -134,7 +139,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               type="select"
               options={Object.keys(eventStatusClasses)}
               viewMode={false}
-              onSaved={handleContactUpdated}
+              onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+              onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
+              onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
               className="full-width margin-bottom"
             />
             <InputSupabase
@@ -144,7 +151,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               defaultValue={contactData?.address || ""}
               type="text"
               viewMode={false}
-              onSaved={handleContactUpdated}
+              onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+              onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
+              onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -157,7 +166,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               defaultValue={contactData?.email || ""}
               type="text"
               viewMode={false}
-              onSaved={handleContactUpdated}
+              onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+              onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
+              onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -168,7 +179,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               defaultValue={contactData?.phone || ""}
               type="text"
               viewMode={false}
-              onSaved={handleContactUpdated}
+              onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+              onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
+              onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -179,7 +192,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
               defaultValue={contactData?.facebook || ""}
               type="text"
               viewMode={false}
-              onSaved={handleContactUpdated}
+              onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+              onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
+              onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
               className="full-width margin-bottom"
               showCopyButton
             />
@@ -197,7 +212,9 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
           defaultValue={contactData?.note || ""}
           type="textarea"
           viewModeOverride={false}
-          onSaved={handleContactUpdated}
+          onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+          onSaved={(data) => { setIsSaving(false); setSaveError(null); if(data?.id) setSelectedContactIdLocal(data.id); if (data) dispatch(upsertContact(data)); }}
+          onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
           fullWidth={true}
           placeholder="Note"
         />

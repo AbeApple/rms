@@ -35,12 +35,12 @@ export default function InputSupabase(props) {
     onSaveStart = ()=>{},
     // sends back (new value, id, column name)
     onSaved = ()=>{},
+    // called with (message) on error
+    onError = ()=>{},
     // sends back (new value, new id, column name)
     onCreatedNew,
     showCopyButton,
     placeholder,
-    // The parent component can tell this component to defer saving (until the current record creation operation in another inputsupabase completes)
-    defer,
     isCreatingRef,
     ...otherProps
   } = props
@@ -65,6 +65,7 @@ export default function InputSupabase(props) {
   function saveStart(){
     setIsSaving(true)
     setSaveError()
+    if (typeof onSaveStart === 'function') onSaveStart()
   }
   function saved(data){
     setIsSaving(false)
@@ -75,6 +76,7 @@ export default function InputSupabase(props) {
     setSaveError()
     if(isCreatingRef)
       isCreatingRef.current = true
+    if (typeof onSaveStart === 'function') onSaveStart()
   }
   function created(data){
     if(isCreatingRef)
@@ -138,7 +140,14 @@ export default function InputSupabase(props) {
       .eq('id', recordIdRef.current)
       .select()
 
-      saved(result?.data[0])
+      if (result?.error) {
+        const msg = result.error.message || 'Save failed';
+        setIsSaving(false)
+        setSaveError(msg)
+        if (onError) onError(msg)
+      } else {
+        saved(result?.data[0])
+      }
 
       console.log("saved record result: ", result)
 
@@ -152,7 +161,17 @@ export default function InputSupabase(props) {
       .insert({ [column]: formattedValue })
       .select()
 
-      created(result?.data[0])
+      if (result?.error) {
+        if(isCreatingRef)
+          isCreatingRef.current = false
+        setIsSaving(false)
+        const msg = result.error.message || 'Create failed';
+        setSaveError(msg)
+        if (onError) onError(msg)
+      } else {
+        created(result?.data[0])
+        
+      }
 
       console.log("created record result: ", result)
 

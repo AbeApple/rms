@@ -7,20 +7,8 @@ import ContactBox from '../../Contacts/ContactBox'
 import { eventStatusClasses } from '../../Events/EventsLoader'
 import InputSupabase from '../../../DB/Input/InputSupabase'
 import { supabase } from '../../../DB/Supabase'
+import SaveStatusIndicator from '../../../Components/SaveStatusIndicator'
 
-/*
-    TODO:
-    Tehre is a bug where if user puts in a title and then a note 
-    faster than the title save creates a new record
-    It creats a rerocd for thte title and a seperate one for the note
-    would need to put creating ref in this component, 
-    then have inputsupabase react to it, not creating while already crating
-    this is implemented locally inthe inputsupabase but not from parent component
-
-    would put creatinRef in this component
-    then could send in the ref to be used to prevent double saves, and also updated in the input supabase 
-
-*/
 async function updateEventDb(eventData){
     if(!eventData.id){
         console.log("updateEventDb no event id")
@@ -49,6 +37,9 @@ export default function EventBox() {
 
     // State for tracking loading errors
     const [loadError, setLoadError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState(null);
 
     // When the event id changes load the event data
     useEffect(()=>{
@@ -59,6 +50,7 @@ export default function EventBox() {
 
     async function loadEventData() {
         console.log("Loading event data");
+        setIsLoading(true);
 
         // Get current date in YYYY-MM-DD format for default value
         const today = new Date().toISOString().split('T')[0];
@@ -100,6 +92,8 @@ export default function EventBox() {
             } catch (error) {
                 console.error('Error loading event data:', error);
                 setLoadError(`Error loading event: ${error.message}`);
+            } finally {
+                setIsLoading(false);
             }
         }
     }
@@ -198,7 +192,8 @@ export default function EventBox() {
 
     return (
         <>
-            <div className="content-area">
+            <div className="content-area" style={{ position: 'relative' }}>
+                <SaveStatusIndicator loading={isLoading} saving={isSaving} error={saveError || loadError} />
                 <div className='panel-left'>
                     {/* Left side content */}
                     <div className="flex-column">
@@ -221,7 +216,9 @@ export default function EventBox() {
                                 type="date"
                                 viewModeOverride={false}
                                 // If the date is changed we reload events so they display in the proper day boxes
-                                onSaved={handleEventSaved}
+                                onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+                                onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
+                                onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
                                 className="half-width"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -231,9 +228,11 @@ export default function EventBox() {
                                 recordId={selectedEventID}
                                 defaultValue={eventData?.status || "scheduled"}
                                 type="select"
-                                options={Object.keys(eventStatusClasses)}
+                                options={["Status", ...Object.keys(eventStatusClasses)]}
                                 viewModeOverride={false}
-                                onSaved={handleEventSaved}
+                                onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+                                onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
+                                onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
                                 className="half-width"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -246,7 +245,9 @@ export default function EventBox() {
                                 defaultValue={eventData?.title || ""}
                                 type="text"
                                 viewModeOverride={false}
-                                onSaved={handleEventSaved}
+                                onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+                                onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
+                                onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
                                 fullWidth={true}
                                 placeholder="Event Title"
                                 isCreatingRef={isCreatingRef}
@@ -260,7 +261,9 @@ export default function EventBox() {
                                 defaultValue={eventData?.note || ""}
                                 type="textarea"
                                 viewModeOverride={false}
-                                onSaved={handleEventSaved}
+                                onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+                                onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
+                                onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
                                 placeholder="Notes"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -273,7 +276,9 @@ export default function EventBox() {
                                 defaultValue={eventData?.start_time || ""}
                                 type="time"
                                 viewModeOverride={false}
-                                onSaved={handleEventSaved}
+                                onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+                                onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
+                                onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
                                 placeholder="Start Time"
                                 isCreatingRef={isCreatingRef}
                             />
@@ -284,7 +289,9 @@ export default function EventBox() {
                                 defaultValue={eventData?.end_time || ""}
                                 type="time"
                                 viewModeOverride={false}
-                                onSaved={handleEventSaved}
+                                onSaveStart={() => { setIsSaving(true); setSaveError(null); }}
+                                onSaved={(data) => { setIsSaving(false); handleEventSaved(data); }}
+                                onError={(msg) => { setIsSaving(false); setSaveError(msg); }}
                                 placeholder="End Time"
                                 isCreatingRef={isCreatingRef}
                             />
