@@ -85,6 +85,40 @@ const eventsSlice = createSlice({
         const timeB = b.start_time ? b.start_time.replace(':', '') : '9999';
         return timeA - timeB;
       });
+    },
+    // Upserts a full event object into the store, maintaining the { date: [events...] } structure
+    upsertEvent(state, action) {
+      const event = action.payload; // expects { id, date, ... }
+      const { id, date } = event || {};
+      if (!id || !date) return;
+      
+      // Ensure no duplicates across dates: remove any existing instance with same id from other dates
+      for (const d in state.events) {
+        if (!state.events[d]) continue;
+        const idx = state.events[d].findIndex(e => e.id === id);
+        if (idx !== -1 && d !== date) {
+          state.events[d].splice(idx, 1);
+          if (state.events[d].length === 0) delete state.events[d];
+        }
+      }
+      
+      // Ensure target date array exists
+      if (!state.events[date]) state.events[date] = [];
+      
+      // Insert or update within target date array
+      const existingIndex = state.events[date].findIndex(e => e.id === id);
+      if (existingIndex !== -1) {
+        state.events[date][existingIndex] = { ...state.events[date][existingIndex], ...event };
+      } else {
+        state.events[date].push(event);
+      }
+      
+      // Sort by start_time if available
+      state.events[date].sort((a, b) => {
+        const timeA = a.start_time ? a.start_time.replace(':', '') : '9999';
+        const timeB = b.start_time ? b.start_time.replace(':', '') : '9999';
+        return timeA - timeB;
+      });
     }
   },
 });
@@ -97,7 +131,8 @@ export const {
   setNewEventDate,
   reloadEvents,
   updateEvent,
-  addEvent
+  addEvent,
+  upsertEvent
 } = eventsSlice.actions;
 
 

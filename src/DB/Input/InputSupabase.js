@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { supabase } from '../Supabase.js'
 import "./InputSupabase.css"
 import InputCopy from '../../Components/InputCopy.js'
+import { formatValue } from '../../Global/functions.js'
 /**
  * InputSupabase Component
  * 
@@ -38,6 +39,9 @@ export default function InputSupabase(props) {
     onCreatedNew,
     showCopyButton,
     placeholder,
+    // The parent component can tell this component to defer saving (until the current record creation operation in another inputsupabase completes)
+    defer,
+    isCreatingRef,
     ...otherProps
   } = props
 
@@ -46,12 +50,42 @@ export default function InputSupabase(props) {
   const inputTimeout = useRef()
   
   // Current value state
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveError, setSaveError] = useState(null)
+
+  const recordIdRef = useRef()
+  useEffect(()=>{
+    recordIdRef.current = recordId
+  },[recordId])
 
   // Changes from an input to a display
   const [viewMode, setViewMode] = useState(true)
   
+  // Saving and creating state
+  const [saveError, setSaveError] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
+  function saveStart(){
+    setIsSaving(true)
+    setSaveError()
+  }
+  function saved(data){
+    setIsSaving(false)
+    onSaved(data)
+
+  }
+  function createStart(){
+    setSaveError()
+    if(isCreatingRef)
+      isCreatingRef.current = true
+  }
+  function created(data){
+    if(isCreatingRef)
+      isCreatingRef.current = false
+    setIsSaving(false)
+    if(onCreatedNew)
+      onCreatedNew(data)
+    else
+      onSaved(data)
+  }
+
   // The parent component can set the view mode if the prop changes
   useEffect(() => {
     setViewMode(viewModeOverride)
@@ -65,7 +99,16 @@ export default function InputSupabase(props) {
 
     // After the timeout interval save the value to the database
     inputTimeout.current = setTimeout(() => {
-      saveToDb(value)
+      // If its not currently creating a new record save the new value
+      if(!isCreatingRef || !isCreatingRef.current){
+        saveToDb(value)
+      }
+      // If currently creating a new record wait for that to complete to have id to save it in
+      else{
+        setTimeout(() => {
+          saveToDb(value)
+        }, 250);
+      }
     }, timeout)
   }
 
@@ -74,83 +117,47 @@ export default function InputSupabase(props) {
    * @param {any} value - Value to save
    */
   async function saveToDb(value) {
-    
-    // Tells the parent component a save to db call has started
-    onSaveStart()
-    
+  
     // Check to ensure proper table and column
     if (!table || !column) {
       console.error('Missing table or column for database operation')
       return
     }
     
-    setIsSaving(true)
-    setSaveError(null)
+
+    // Format special values if needed (boolean, numbers etc)
+    let formattedValue = formatValue(value);
     
-    try {
-      // Format special kvalues if needed
-      let formattedValue = value;
-      
-      // Handle boolean values (convert "true"/"false" strings to actual booleans)
-      if (value === "true" || value === "false") {
-        formattedValue = value === "true";
-      }
-      
-      // Handle numeric values
-      if (!isNaN(value) && value !== "") {
-        formattedValue = Number(value);
-      }
-      
-      let result;
-      
-      // Check if this is a new record or an existing one
-      if (!recordId || recordId === 'new') {
-        
-        result = await supabase
-          .from(table)
-          .insert({ [column]: formattedValue })
-          .select()
-        
-        // If successful and we have data, call the callback with the new ID and column name
-        if (!result.error && result.data && result.data.length > 0) {
-          console.log(`Successfully created new ${table} record with ID: ${result.data[0].id}`)
-          if(onCreatedNew){
-            console.log("input supabase: onCreatedNew")
-            onCreatedNew(formattedValue, result.data[0].id, column, table)
-          }
-          else{
-            console.log("input supabase: onSaved")
-            onSaved(formattedValue, result.data[0].id, column, table)
-          }
-        }
-      } else {
-        // Update existing record
-        console.log(`Updating ${table} record ${recordId}, setting ${column} = ${formattedValue}`)
-        
-        result = await supabase
-          .from(table)
-          .update({ [column]: formattedValue })
-          .eq('id', recordId)
-          .select()
-        
-        // If successful, call the callback with the new value, record ID, and column name
-        if (!result.error) {
-          console.log(`Successfully updated ${table} record ${recordId}`)
-          onSaved(formattedValue, recordId, column)
-        }
-      }
-      
-      // Handle errors
-      if (result.error) {
-        console.error('Error in database operation:', result.error)
-        setSaveError(result.error.message)
-      }
-    } catch (error) {
-      console.error('Error in saveToDb:', error)
-      setSaveError(error.message)
-    } finally {
-      setIsSaving(false)
+    // If saving
+    if(recordIdRef.current && recordIdRef.current !== "new"){
+      saveStart()
+
+      let result = await supabase
+      .from(table)
+      .update({ [column]: formattedValue })
+      .eq('id', recordIdRef.current)
+      .select()
+
+      saved(result?.data[0])
+
+      console.log("saved record result: ", result)
+
     }
+    // If creating
+    else{
+      createStart()
+
+      let result = await supabase
+      .from(table)
+      .insert({ [column]: formattedValue })
+      .select()
+
+      created(result?.data[0])
+
+      console.log("created record result: ", result)
+
+    }
+
   }
   
   /**

@@ -1,13 +1,39 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import "./EventWindow.css"
-import { setSelectedEventID, updateEvent, addEvent, reloadEvents } from '../../../Global/eventsSlice'
+import { setSelectedEventID, updateEvent, addEvent, reloadEvents, upsertEvent } from '../../../Global/eventsSlice'
 import Window from '../Window'
 import ContactBox from '../../Contacts/ContactBox'
 import { eventStatusClasses } from '../../Events/EventsLoader'
 import InputSupabase from '../../../DB/Input/InputSupabase'
 import { supabase } from '../../../DB/Supabase'
 
+/*
+    TODO:
+    Tehre is a bug where if user puts in a title and then a note 
+    faster than the title save creates a new record
+    It creats a rerocd for thte title and a seperate one for the note
+    would need to put creating ref in this component, 
+    then have inputsupabase react to it, not creating while already crating
+    this is implemented locally inthe inputsupabase but not from parent component
+
+    would put creatinRef in this component
+    then could send in the ref to be used to prevent double saves, and also updated in the input supabase 
+
+*/
+async function updateEventDb(eventData){
+    if(!eventData.id){
+        console.log("updateEventDb no event id")
+        return
+    }
+    const result = await supabase
+        .from('events')
+        .update(eventData)
+        .eq('id', eventData?.id)
+        .select();
+    
+    return result            
+}
 
 // This is a bunch of trash. need to restart. 
 export default function EventBox() {
@@ -18,7 +44,8 @@ export default function EventBox() {
     const selectedEventDate = useSelector(state => state.events?.selectedEventDate)
     // Starting with the simple data in the global state (contact_id, title, date)
     const [eventData, setEventData] = useState(events && events[selectedEventDate] && events[selectedEventDate].find(event => event?.id === selectedEventID))
-    const justCreated = useRef()
+    const isCreatingRef = useRef()
+
 
     // State for tracking loading errors
     const [loadError, setLoadError] = useState(null);
@@ -26,23 +53,12 @@ export default function EventBox() {
     // When the event id changes load the event data
     useEffect(()=>{
 
-        // To prevent the scenario where a new event is created then the date is updated in the db at the same time as a raload so the date here coule be overridden by the null date in the db at the time of loadinFromDB
-        if(selectedEventID){
-            justCreated.current = true
-        }
-        else {
-            setEventData({date: selectedEventDate})
-            justCreated.current = true
-        }
- 
-        // If there is an event to load and we didn't just create a new event load the event data
-        if(selectedEventID && !justCreated.current)
-            loadEventData()
+        loadEventData()
 
     },[selectedEventID])
 
-    async function loadEventData(){
-        console.log("loading event data ")
+    async function loadEventData() {
+        console.log("Loading event data");
 
         // Get current date in YYYY-MM-DD format for default value
         const today = new Date().toISOString().split('T')[0];
@@ -88,66 +104,31 @@ export default function EventBox() {
         }
     }
     
-    // When event data changes update the specific event in the Redux store
-    const handleEventSaved = async (value, eventId, column) => {
-        console.log("handleEventSaved: ", value, eventId, column)
-        const columnsToRefreshFor = ["title", "contact_id", "status", "date", "start_time", "end_time"]
+    function handleEventSaved(newData){
+        // Combine existing data with new data
+        let combinedData = {...eventData, ...newData}
         
-        // Only update the Redux store for fields that affect the calendar display
-        if(columnsToRefreshFor.includes(column)) {
-            // Create the updated data object with snake_case keys
-            const updatedData = {};
-            
-            // Set the value directly with the same column name
-            updatedData[column] = value;
-            
-            // Update the specific event in the Redux store
-            dispatch(updateEvent({ eventId, updatedData }));
+        if(!selectedEventID || selectedEventID === "new")
+            dispatch(setSelectedEventID(combinedData.id))
+
+        // If there is no date add it
+        if(!combinedData.date){
+            combinedData.date = selectedEventDate
+
+            // Call update event db funci=ton to add date to db (need to create)
+            let result = updateEventDb(combinedData)
+
+        }
+
+        // Update the global state for immeidate display without reload
+        dispatch(upsertEvent(combinedData))
+
+        // If the thing that was changed was the data we need to reload events so they all display in the proper day boxes
+        if(newData.date){
+            dispatch(reloadEvents())
         }
     }
-    
-    // Called in a callback when InputSupabase creates a new entry to events and sets the event data in the db
-    const handleEventCreated = async (value, newEventId, column) => {
-        console.log(`New event created with ID: ${newEventId}, setting ${column} = ${value}`);
-        
-        // Update the selected event ID in global state
-        dispatch(setSelectedEventID(newEventId));
-        
-        // Create a new event object with snake_case keys
-        const newEvent = {
-            id: newEventId,
-            [column]: value
-        };
 
-        // Update local state to this new event data
-        setEventData(newEvent)
-
-        // If this is the first field being created, ensure the date is set
-        // This is needed because the date might not be the first field the user edits
-        if (column !== 'date' && selectedEventDate) {
-            try {
-                // Set the date in the database for this new event
-                const result = await supabase
-                    .from('events')
-                    .update({ date: selectedEventDate })
-                    .eq('id', newEventId)
-                    .select();
-                
-                if (result.error) {
-                    console.error('Error setting date for new event:', result.error);
-                } else {
-                    console.log(`Successfully set date to ${selectedEventDate} for new event ${newEventId}`);
-                    // Add date to the new event
-                    newEvent.date = selectedEventDate;
-                }
-            } catch (error) {
-                console.error('Error in handleEventCreated:', error);
-            }
-        }
-        
-        // Add the new event to the Redux store
-        dispatch(addEvent({ event: newEvent }));
-    }
 
     // Create a new event with provided data (used for when contact id is set and there is no event id)
     const createEvent = async (eventData) => {
@@ -197,46 +178,16 @@ export default function EventBox() {
         }
     }
 
-    // Update an existing event with provided data
-    const updateEventInDB = async (eventId, eventData) => {
-        try {
-            if (!eventId || eventId === 'new') {
-                console.error('Cannot update event: Invalid event ID');
-                return false;
-            }
-            
-            console.log(`Updating event ${eventId} with:`, eventData);
-            
-            const { error } = await supabase
-                .from('events')
-                .update(eventData)
-                .eq('id', eventId);
-
-            if (error) {
-                console.error('Error updating event:', error);
-                return false;
-            }
-
-            console.log(`Successfully updated event ${eventId}`);
-            
-            // Update the specific event in the Redux store using the same data
-            // No need to transform field names since we're using snake_case consistently
-            dispatch(updateEvent({ eventId, updatedData: eventData }));
-            
-            return true;
-        } catch (error) {
-            console.error('Error in updateEventInDB:', error);
-            return false;
-        }
-    }
-
     // Handle contact ID changes
     const handleContactIDChanged = async (contactId) => {
         console.log("event contact id changed: ", contactId)
         // If there is an event id update the event
         if (selectedEventID && selectedEventID !== 'new') {
+            let newEventData = { id: selectedEventID, contact_id: contactId }
+            console.log("updated event ", newEventData)
             // Update existing event with new contact ID
-            await updateEventInDB(selectedEventID, { contact_id: contactId });
+            await updateEventDb(newEventData);
+            dispatch(upsertEvent(newEventData))
         } 
         // If not create the event with the contact id
         else {
@@ -270,9 +221,9 @@ export default function EventBox() {
                                 type="date"
                                 viewModeOverride={false}
                                 // If the date is changed we reload events so they display in the proper day boxes
-                                onSaved={data => {handleEventSaved(data); dispatch(reloadEvents())}}
-                                onCreatedNew={handleEventCreated}
+                                onSaved={handleEventSaved}
                                 className="half-width"
+                                isCreatingRef={isCreatingRef}
                             />
                             <InputSupabase
                                 table="events"
@@ -283,8 +234,8 @@ export default function EventBox() {
                                 options={Object.keys(eventStatusClasses)}
                                 viewModeOverride={false}
                                 onSaved={handleEventSaved}
-                                onCreatedNew={handleEventCreated}
                                 className="half-width"
+                                isCreatingRef={isCreatingRef}
                             />
                         </div>
                         <div className="row">
@@ -296,10 +247,9 @@ export default function EventBox() {
                                 type="text"
                                 viewModeOverride={false}
                                 onSaved={handleEventSaved}
-                                onCreatedNew={handleEventCreated}
                                 fullWidth={true}
                                 placeholder="Event Title"
-                                // showCopyButton
+                                isCreatingRef={isCreatingRef}
                             />
                         </div>
                         <div className="textarea-container textarea-container-event-window">
@@ -311,8 +261,8 @@ export default function EventBox() {
                                 type="textarea"
                                 viewModeOverride={false}
                                 onSaved={handleEventSaved}
-                                onCreatedNew={handleEventCreated}
                                 placeholder="Notes"
+                                isCreatingRef={isCreatingRef}
                             />
                         </div>
                         <div className="row">
@@ -324,8 +274,8 @@ export default function EventBox() {
                                 type="time"
                                 viewModeOverride={false}
                                 onSaved={handleEventSaved}
-                                onCreatedNew={handleEventCreated}
                                 placeholder="Start Time"
+                                isCreatingRef={isCreatingRef}
                             />
                             <InputSupabase
                                 table="events"
@@ -335,8 +285,8 @@ export default function EventBox() {
                                 type="time"
                                 viewModeOverride={false}
                                 onSaved={handleEventSaved}
-                                onCreatedNew={handleEventCreated}
                                 placeholder="End Time"
+                                isCreatingRef={isCreatingRef}
                             />
                         </div>
                     </div>

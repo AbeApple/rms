@@ -108,3 +108,19 @@ export function scrollToToday() {
     return null;
   }
 }
+
+export function formatValue(value){
+  let formattedValue = value
+
+  if (value === "true" || value === "false") {
+    formattedValue = value === "true";
+  }
+  
+  // Handle numeric values
+  if (!isNaN(value) && value !== "") {
+    formattedValue = Number(value);
+  }
+
+  return formattedValue
+
+}

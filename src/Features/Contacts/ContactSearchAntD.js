@@ -82,12 +82,12 @@ function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contac
             type="text"
             placeholder="Contact name"
             className="contact-input"
-            onSaved={(value, newId) => {
+            onSaved={(data) => {
               // When a new contact is created the id will be sent to the parent which will sent it to its parent, they will load and update data accordingly
-              console.log(`[ContactSearchAntD] updated contact with ID: ${newId}`);
-              onContactSelected(newId);
+              console.log(`[ContactSearchAntD] updated contact with ID: ${data.id}`);
+              onContactSelected(data.id);
               // Also need to put it in the global state so the contacts objects is current
-              disatch(upsertContact({id: newId, name: value}))
+              disatch(upsertContact(data))
             }}
           />
         )}
