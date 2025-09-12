@@ -134,6 +134,7 @@ export default function EventBox() {
             const newEventData = {
                 date: eventDate,
                 status: 'scheduled',
+                user_id: userId,
                 ...eventData // Override defaults with provided data
             };
             
@@ -158,6 +159,7 @@ export default function EventBox() {
                 const eventForRedux = {
                     id: newEventId,
                     date: selectedEventDate,
+                    user_id: userId,
                     ...data[0] // Use the data directly from Supabase which is already in snake_case
                 };
                 

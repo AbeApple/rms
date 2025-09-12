@@ -10,6 +10,8 @@ import { supabase } from '../../DB/Supabase';
 import InputSupabase from '../../DB/Input/InputSupabase';
 import { eventStatusClasses } from '../Events/EventsLoader';
 import SaveStatusIndicator from '../../Components/SaveStatusIndicator';
+import ContactImages from './ContactImages';
+import ContactImages2 from './ContactImages2';
 
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
@@ -112,19 +114,12 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       />
       
       <div className="contact-details-container">
-        <div 
-          className="contact-image" 
-        >
-          {contactData?.image?.downloadURL ? (
-            <img 
-              src={contactData.image.downloadURL} 
-              alt={contactData.name || 'Contact'} 
-              className="contact-img"
-              onClick={()=>dispatch(setImagesArray([contactData?.image?.downloadURL]))}
-            />
-          ) : (
-            <div className="image-placeholder"></div>
-          )}
+        <div className="contact-image">
+          <ContactImages2 
+            contactId={selectedContactIdLocal}
+            userId={userId}
+            mainImageJson={contactData?.main_image || contactData?.image}
+          />
           <button className="open-button" onClick={() => dispatch(setSelectedContactID(selectedContactIdLocal))}>
             Open <span className="arrow-icon">↗</span>
           </button>

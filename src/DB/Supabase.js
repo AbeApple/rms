@@ -38,6 +38,86 @@ export const signUp = async (email, password) => {
 };
 
 /**
+ * Upload an image to the user_images bucket and create a record in images table for a contact
+ * @param {File} file - Image file to upload
+ * @param {string} userId - User ID
+ * @param {string} contactId - Contact ID
+ * @param {Function} onUploadProgress - Optional progress callback (0-100)
+ * @returns {Promise<{data: Object|null, error: any}>}
+ */
+export const uploadContactImage = async (file, userId, contactId, onUploadProgress) => {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 10)}_${Date.now()}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+
+    const { error: uploadError } = await supabase
+      .storage
+      .from('user_images')
+      .upload(filePath, file, {
+        upsert: true,
+        cacheControl: '3600',
+        onUploadProgress: (p) => {
+          if (onUploadProgress && p?.total) {
+            const percent = Math.round((p.loaded / p.total) * 100);
+            onUploadProgress(percent);
+          }
+        }
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = await supabase
+      .storage
+      .from('user_images')
+      .getPublicUrl(filePath);
+
+    const imageRecord = {
+      user_id: userId,
+      contact_id: contactId,
+      url: publicUrl,
+      file_path: filePath,
+      file_name: fileName,
+      file_type: file.type,
+      file_size: file.size,
+      bucket: 'user_images'
+    };
+
+    const { data, error } = await supabase
+      .from('images')
+      .insert([imageRecord])
+      .select();
+
+    if (error) throw error;
+    return { data: data?.[0] || null, error: null };
+  } catch (error) {
+    console.error('Error uploading contact image:', error);
+    return { data: null, error };
+  }
+};
+
+/**
+ * Get images for a specific contact and user
+ * @param {string} userId
+ * @param {string} contactId
+ */
+export const getContactImages = async (userId, contactId) => {
+  try {
+    const { data, error } = await supabase
+      .from('images')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('contact_id', contactId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching contact images:', error);
+    return { data: [], error };
+  }
+};
+
+/**
  * Sign in a user with email and password
  * @param {string} email - User's email
  * @param {string} password - User's password
