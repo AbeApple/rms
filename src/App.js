@@ -8,6 +8,7 @@ import ContactsLoader from './Features/Contacts/ContactsLoader';
 import ImagesWindow from './Features/Windows/Images/ImagesWIndow';
 import MenuWindow from './Features/Windows/Menu/MenuWindow';
 import AuthProvider from './DB/auth/AuthProvider';
+import ImageArrayViewer from './Components/ImageArrayViewer';
 
 /*
 
@@ -47,6 +48,7 @@ function App() {
         <EventWindow />
         <ContactWindow />
         <ImagesWindow />
+        <ImageArrayViewer />
 
         <EventsLoader />
         <ContactsLoader />

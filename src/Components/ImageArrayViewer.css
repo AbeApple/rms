@@ -1,0 +1,53 @@
+.imageArrayViewer{
+    position: relative;
+    width: 100%;
+    height: calc(100% - 10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.imageArrayViewer .image-view{
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.imageArrayViewer .nav-btn{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    border: none;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.imageArrayViewer .nav-left{
+    left: 10px;
+}
+
+.imageArrayViewer .nav-right{
+    right: 10px;
+}
+
+.imageArrayViewer .bottom-bar{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    padding: 5px;
+    text-align: center;
+    box-sizing: border-box;
+}

@@ -1,6 +1,6 @@
 import Window from "../Window"
 import "./ImagesWindow.css"
-import { setImagesArray } from "../../../Global/store"
+import { setImagesWindowArray } from "../../../Global/store"
 import { useDispatch, useSelector } from "react-redux"
 import { useState } from "react"
 
@@ -20,7 +20,7 @@ export default function ImagesWindow(){
 
     return (
         <Window
-            onClose={()=>dispatcher(setImagesArray())}
+            onClose={()=>dispatcher(setImagesWindowArray())}
             className="imagesWindow"
         >
             <div 

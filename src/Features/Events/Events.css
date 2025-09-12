@@ -3,7 +3,6 @@
     border: 2px solid rgba(223, 223, 223, 0.9);
     border-radius: 3px;
     margin: 5px;
-    padding: 10px;
     font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
@@ -21,7 +20,7 @@
 
 /* Small event display styling for calendar */
 .eventDisplaySmall {
-    padding: 3px 5px;
+    padding: 2px;
     font-size: 14px;
     margin: 2px;
 }
@@ -82,4 +81,22 @@
 .wasPositive{
     background-color: rgba(12, 55, 7, .183);
     border: 2px solid rgba(255, 96, 71, .271);
+}
+.event-title{
+    width: calc(100% - 40px);
+    display: inline-block;
+    vertical-align: top;
+    padding: 2px;
+    word-wrap: break-word;
+}
+.event-display-contact-image-1{
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    overflow: hidden;
+    display: inline-block;
+}
+.event-display-contact-image-1 img{
+    height: 100%;
+    width: 100%;
 }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import "../Input/InputSupabase.css"
 import { supabase } from "../Supabase"
+import { setImagesWindowArray } from "../../Global/store"
 
 /*
     will be able to upload 1 or many files
@@ -43,6 +44,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
 
     // Current authenticated user id from Redux
     const userId = useSelector(state => state?.auth?.userId)
+    const dispatch = useDispatch()
 
     // #region Uploading
 
@@ -381,7 +383,16 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
 
     return (
         <>
-            <div className="imageUploaderSB" onDragOver={e=>e.preventDefault()} onDrop={handleDrop} onClick={()=>setShowLargeImageDisplay(true)}>
+            <div 
+                className="imageUploaderSB" 
+                onDragOver={e=>e.preventDefault()} 
+                onDrop={handleDrop} 
+                onClick={()=>{
+                    if(Array.isArray(displayUrlArray) && displayUrlArray.length){
+                        dispatch(setImagesWindowArray(displayUrlArray))
+                    }
+                }}
+            >
                 <div className="imageArrow imageArrowLeft " title="Previous Image" onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(-1);}}>{"<"}</div>
                 <img src={displayUrlArray && displayUrlArray[displayUrlArrayIndex]?.publicUrl} style={{objectFit: "cover"}}></img>
                 <div className="imageArrow imageArrowRight " title="Next Image" onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(1)}}>{">"}</div>
@@ -397,6 +408,8 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                     </div>
                 </div>
             </div>
+
+            {/* upt imageArrayToView in redux and display the image array viewer instead*/}
             {showLargeImageDisplay && 
                 <div 
                     style={{

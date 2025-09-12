@@ -4,7 +4,6 @@ import { setSelectedContactID, upsertContact } from '../../Global/contactsSlice'
 // import ContactSelector from './ContactSelector';
 import ContactSearchAntD from './ContactSearchAntD';
 import './ContactBox.css';
-import { setImagesArray } from '../../Global/store';
 import InputCopy from '../../Components/InputCopy';
 import { supabase } from '../../DB/Supabase';
 import InputSupabase from '../../DB/Input/InputSupabase';

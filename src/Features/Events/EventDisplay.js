@@ -67,6 +67,7 @@ function EventDisplay({ eventData, inDayWindow }) {
       className={`eventDisplay ${inDayWindow ? "":"eventDisplaySmall"} ${eventStatusClasses[eventData?.status]} `}
       onClick={handleClick}
     >
+      <div className='event-display-contact-image-1'><img src={contactData?.main_image}></img></div>
       <div className="event-title">{eventData?.title || contactData?.name}</div>
     </div>
   )

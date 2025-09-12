@@ -9,20 +9,20 @@ const uiSlice = createSlice({
   name: 'ui',
   initialState: {
     showMenu: false,
-    imagesArray: null,
+    imagesWindowArray: null,
   },
   reducers: {
     setShowMenu(state, action) {
       state.showMenu = action.payload;
     },
-    setImagesArray(state, action) {
-      console.log("setImagesArray ", action.payload)
-      state.imagesArray = action.payload;
+    setImagesWindowArray(state, action) {
+      console.log("setImagesWindowArray ", action.payload)
+      state.imagesWindowArray = action.payload;
     },
   },
 });
 
-export const { setShowMenu, setImagesArray } = uiSlice.actions;
+export const { setShowMenu, setImagesWindowArray } = uiSlice.actions;
 
 // Slice to track visible months and selected day
 const calendarSlice = createSlice({
