@@ -31,14 +31,13 @@ function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contac
   const options = Object.values(contactsObj).map(contact => ({
     label: (
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* <div>hello{contact.main_image}</div> */}
-        {/* <button onClick={()=>{console.log(contact)}}>log</button> */}
-        <Avatar 
-          src={contact.main_image} 
-          style={{ backgroundColor: !contact.main_image ? '#1890ff' : 'transparent' }}
-        >
-          {!contact.main_image && contact?.name?.charAt(0)}
-        </Avatar>
+        <div className="contact-avatar">
+          {contact.main_image ? (
+            <img src={contact.main_image} alt={contact.name || 'contact'} />
+          ) : (
+            <div className="contact-avatar-fallback">{contact?.name?.charAt(0) || '?'}</div>
+          )}
+        </div>
         <span>{contact.name}</span>
       </div>
     ),

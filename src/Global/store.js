@@ -10,6 +10,7 @@ const uiSlice = createSlice({
   initialState: {
     showMenu: false,
     imagesWindowArray: null,
+    imagesWindowIndex: 0,
   },
   reducers: {
     setShowMenu(state, action) {
@@ -19,10 +20,15 @@ const uiSlice = createSlice({
       console.log("setImagesWindowArray ", action.payload)
       state.imagesWindowArray = action.payload;
     },
+    setImagesWindowIndex(state, action){
+      let idx = parseInt(action.payload ?? 0, 10)
+      if(Number.isNaN(idx)) idx = 0
+      state.imagesWindowIndex = idx
+    }
   },
 });
 
-export const { setShowMenu, setImagesWindowArray } = uiSlice.actions;
+export const { setShowMenu, setImagesWindowArray, setImagesWindowIndex } = uiSlice.actions;
 
 // Slice to track visible months and selected day
 const calendarSlice = createSlice({

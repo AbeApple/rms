@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import "../Input/InputSupabase.css"
 import { supabase } from "../Supabase"
-import { setImagesWindowArray } from "../../Global/store"
+import { setImagesWindowArray, setImagesWindowIndex } from "../../Global/store"
+import "./ImageUploader2.css"
 
 /*
     will be able to upload 1 or many files
@@ -390,6 +391,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                 onClick={()=>{
                     if(Array.isArray(displayUrlArray) && displayUrlArray.length){
                         dispatch(setImagesWindowArray(displayUrlArray))
+                        dispatch(setImagesWindowIndex(displayUrlArrayIndex || 0))
                     }
                 }}
             >
@@ -398,13 +400,12 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                 <div className="imageArrow imageArrowRight " title="Next Image" onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(1)}}>{">"}</div>
                 <div className="imageBottomInfo">
                     {userMessage}
-                    <div  
+                    <div
+                        className="edit-button"
                         title={"Edit Images"}
-                        // onClick={(e)=>{console.log(existingImagesArray); e.stopPropagation()}} 
-                        onClick={(e)=>{setShowImageEditor(true); e.stopPropagation()}} 
-                        style={{position: "absolute", right: "5px", bottom: "5px", cursor: "pointer", height: "20px", width: "20px"}}
+                        onClick={(e)=>{setShowImageEditor(true); e.stopPropagation()}}
                     >
-                        <img></img>    
+                        ✎
                     </div>
                 </div>
             </div>

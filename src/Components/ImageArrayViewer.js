@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import Window from '../Features/Windows/Window'
 import { useDispatch, useSelector } from 'react-redux'
-import { setImagesWindowArray } from '../Global/store'
+import { setImagesWindowArray, setImagesWindowIndex } from '../Global/store'
 import './ImageArrayViewer.css'
 
 function ImageArrayViewer() {
@@ -9,19 +9,18 @@ function ImageArrayViewer() {
     // get imageArrayToView from redux 
     const dispatch = useDispatch()
     const imagesWindowArray = useSelector(state => state.ui.imagesWindowArray)
-    const [index, setIndex] = useState(0)
+    const index = useSelector(state => state.ui.imagesWindowIndex) ?? 0
 
     function nextImage(){
         if(!imagesWindowArray?.length) return
-        let nextIndex = index + 1
-        if(nextIndex >= imagesWindowArray.length) nextIndex = 0
-        setIndex(nextIndex)
+        let nextIndex = (index + 1) % imagesWindowArray.length
+        dispatch(setImagesWindowIndex(nextIndex))
     }
     function lastImage(){
         if(!imagesWindowArray?.length) return
         let lastIndex = index - 1
         if(lastIndex < 0) lastIndex = imagesWindowArray.length - 1
-        setIndex(lastIndex)
+        dispatch(setImagesWindowIndex(lastIndex))
     }
 
     const currentItem = useMemo(()=> imagesWindowArray?.[index], [imagesWindowArray, index])
@@ -39,7 +38,7 @@ function ImageArrayViewer() {
         >
             <div className="imageArrayViewer">
                 <button className="nav-btn nav-left" onClick={lastImage}>{"<"}</button>
-                <img className="image-view" src={currentUrl} alt="image" />
+                <img key={index} className="image-view" src={currentUrl} alt="image" onClick={()=>dispatch(setImagesWindowIndex(index))} />
                 <button className="nav-btn nav-right" onClick={nextImage}>{">"}</button>
                 <div className="bottom-bar">{`${index + 1} of ${imagesWindowArray?.length || 0}`} {currentItem?.index !== undefined ? `| index: ${currentItem.index}` : ''}</div>
             </div>

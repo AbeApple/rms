@@ -4,9 +4,11 @@
     border-radius: 3px;
     margin: 5px;
     font-size: 14px;
-    white-space: nowrap;
+    /* Layout: image left, text right */
+    display: flex;
+    align-items: center; /* Vertically center content to avoid extra bottom space */
+    gap: 6px;
     overflow: hidden;
-    text-overflow: ellipsis;
     cursor: pointer;
     transition: all 0.2s ease;
     opacity: 0.8;
@@ -20,7 +22,7 @@
 
 /* Small event display styling for calendar */
 .eventDisplaySmall {
-    padding: 2px;
+    padding: 0 1px;
     font-size: 14px;
     margin: 2px;
 }
@@ -83,20 +85,50 @@
     border: 2px solid rgba(255, 96, 71, .271);
 }
 .event-title{
-    width: calc(100% - 40px);
-    display: inline-block;
-    vertical-align: top;
-    padding: 2px;
-    word-wrap: break-word;
+    /* Take remaining space next to the image */
+    flex: 1 1 auto;
+    min-width: 0; /* Allows text truncation inside flex */
+    /* Allow wrapping and clamp to 2 lines */
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2; /* standard property for compatibility */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .event-display-contact-image-1{
     border-radius: 50%;
     height: 30px;
     width: 30px;
     overflow: hidden;
+    flex: 0 0 30px; /* fixed-size left avatar */
     display: inline-block;
 }
 .event-display-contact-image-1 img{
     height: 100%;
     width: 100%;
+}
+
+/* Mobile-specific optimizations for day box events */
+@media (max-width: 768px) {
+  .eventDisplaySmall {
+    font-size: 9px;
+    margin: 1px;
+    padding: 0 1px;
+    gap: 3px; /* tighter gap between avatar and text */
+  }
+  .eventDisplaySmall .event-display-contact-image-1{
+    height: 15px;
+    width: 15px;
+    flex: 0 0 15px;
+  }
+  .eventDisplaySmall .event-title{
+    /* Two lines without ellipsis: wrap and cap height */
+    white-space: normal;
+    display: block;
+    word-break: break-word;
+    overflow: hidden;
+    line-height: 1.2;
+    max-height: calc(1.2em * 2);
+  }
 }
