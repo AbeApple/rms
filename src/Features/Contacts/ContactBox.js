@@ -51,7 +51,7 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   async function loadContactData(contactID){
 
     setIsLoading(true)
-         
+
     // Get simple data immediately
     setContactData(contacts && contacts[contactID])
 
@@ -64,6 +64,8 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
             .eq('id', contactID)
             .eq('user_id', userId)
             .single();
+
+          console.log("contact data", data)
         
         if (error) {
             throw error;
@@ -86,20 +88,47 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
     }
   }
 
-  // Handle updates to contact data (is there a purpose of this function?)
-  const handleContactUpdated = (value, recordId, column) => {
-    console.log(`Contact updated: ${column} = ${value}`);
-    // If a new contat was created update the id (will trigger parent callback too if different from current)
-    setSelectedContactIdLocal(recordId)
-    dispatch(upsertContact({id: recordId, [column]: value}))
-  }
-
   // Handle contact selection from the ContactSelector 
   const handleContactSelected = (contactID) => {
     console.log("contact selected: ", contactID)
     // TODO call directly when done debugging
     setSelectedContactIdLocal(contactID);
   };
+
+  async function createContact(){
+    // Create a contact in the database and return the data {id: newID}
+    try{
+      // Ensure we include user_id so filtered queries can find this row
+      const { data, error } = await supabase
+        .from("contacts")
+        .insert({ user_id: userId })
+        .select()
+
+      console.log("created contact: ", data[0].id)
+
+      if(error){
+        console.log("createContact error: ", error)
+        return null
+      }
+
+      const newContactID = data && data[0] && data[0].id
+      if(!newContactID){
+        console.log("createContact error: no id returned")
+        return null
+      }
+
+      console.log("created contact with id: ", newContactID)
+
+      // Update local state immediately (will trigger usEffect to notify parent component)
+      setSelectedContactIdLocal(newContactID)
+
+      return newContactID
+    }catch(err){
+      console.error("createContact exception:", err)
+      return null
+    }
+
+  }
 
   return (
     <div className="contact-box" style={{ position: 'relative' }}>
@@ -114,10 +143,12 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
       
       <div className="contact-details-container">
         <div className="contact-image">
+          {/* Loads and displays existing (starting with default),  */}
           <ContactImages2 
             contactId={selectedContactIdLocal}
             userId={userId}
-            mainImageJson={contactData?.main_image || contactData?.image}
+            defaultImage={{public_url: contactData?.main_image}}
+            createNewCallback={createContact}
           />
           <button className="open-button" onClick={() => dispatch(setSelectedContactID(selectedContactIdLocal))}>
             Open <span className="arrow-icon">↗</span>

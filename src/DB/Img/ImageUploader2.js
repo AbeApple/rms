@@ -149,7 +149,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
             // This is what will be stored in the contact data and used to display or delete the image
             const fileObject = {
                 bucket: bucket, 
-                publicUrl: publicUrlResponse?.data?.publicUrl,
+                public_url: publicUrlResponse?.data?.publicUrl,
                 // Store storage path as the key so we can reference/delete later
                 storageKey: fileStorageResponse?.data?.path,
 
@@ -226,7 +226,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                 user_id: userId,
                 item_id: itemID,
                 bucket: f.bucket,
-                public_url: f.publicUrl,
+                public_url: f.public_url,
                 storage_key: f.storageKey,
                 index: String(idx),
             }))
@@ -261,11 +261,11 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                 index: parseInt(r.index ?? '0', 10) || 0,
                 bucket: r.bucket,
                 storageKey: r.storage_key,
-                publicUrl: r.public_url,
+                public_url: r.public_url,
             }))
 
             return mapped
-        }catch(err){
+        } catch(err){
             console.error(err)
             setUserMessage("Error")
             return displayUrlArray || []
@@ -396,7 +396,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                 }}
             >
                 <div className="imageArrow imageArrowLeft " title="Previous Image" onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(-1);}}>{"<"}</div>
-                <img src={displayUrlArray && displayUrlArray[displayUrlArrayIndex]?.publicUrl} style={{objectFit: "cover"}}></img>
+                <img src={displayUrlArray && displayUrlArray[displayUrlArrayIndex]?.public_url} style={{objectFit: "cover"}}></img>
                 <div className="imageArrow imageArrowRight " title="Next Image" onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(1)}}>{">"}</div>
                 <div className="imageBottomInfo">
                     {userMessage}
@@ -425,7 +425,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                     }}>
                     <div className="closeButton" onClick={()=>setShowLargeImageDisplay(false)}>x</div>
                     <div className="imageArrow imageArrowLeft " title="Previous Image"  onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(-1);}}>{"<"}</div>
-                    <img src={displayUrlArray[displayUrlArrayIndex]?.publicUrl} style={{objectFit: "contain"}}></img>
+                    <img src={displayUrlArray[displayUrlArrayIndex]?.public_url} style={{objectFit: "contain"}}></img>
                     <div className="imageArrow imageArrowRight " title="Next Image" onClick={(e)=>{e.stopPropagation(); updateDisplayUrlIndex(1)}}>{">"}</div>
                     <div className="imageBottomInfo">{userMessage}</div>
                 </div>

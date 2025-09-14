@@ -177,9 +177,15 @@ export default function EventBox() {
 
     // Handle contact ID changes
     const handleContactIDChanged = async (contactId) => {
+        
         console.log("event contact id changed: ", contactId)
         // If there is an event id update the event
         if (selectedEventID && selectedEventID !== 'new') {
+            // If there is no contact and no event just return
+            if(!contactId) {
+                console.log("no contactId or eventID returning")
+                return
+            }
             const eventDate = eventData?.date || selectedEventDate;
             let newEventData = { id: selectedEventID, contact_id: contactId, date: eventDate }
             console.log("updated event ", newEventData)

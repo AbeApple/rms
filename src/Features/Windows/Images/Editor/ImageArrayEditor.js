@@ -73,7 +73,7 @@ export default function ImageArrayEditor(){
         <div className="image-array-editor">
             {images.map((img, idx) => (
                 <ImageEditBox
-                    key={(img.imageId ?? img.storageKey ?? img.publicUrl ?? "img") + "-" + idx}
+                    key={(img.imageId ?? img.storageKey ?? img.public_url ?? "img") + "-" + idx}
                     index={idx}
                     image={img}
                     onDrop={handleDropOnBox(idx)}

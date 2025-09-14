@@ -99,7 +99,7 @@ export default function ContactImages({ contactId, userId, mainImageJson }) {
 
         const fileObject = {
           bucket: 'user_images',
-          publicUrl: pub?.publicUrl,
+          public_url: pub?.publicUrl,
           storagePath
         }
         uploadedFileObjects.push(fileObject)
@@ -128,7 +128,7 @@ export default function ContactImages({ contactId, userId, mainImageJson }) {
       const needMain = (!existing?.main_image || !existing?.main_image?.downloadURL) && uploadedFileObjects.length > 0
       if (needMain) {
         updates.main_image = {
-          downloadURL: uploadedFileObjects[0].publicUrl,
+          downloadURL: uploadedFileObjects[0].public_url,
           storageURL: uploadedFileObjects[0].storagePath,
           bucket: uploadedFileObjects[0].bucket
         }

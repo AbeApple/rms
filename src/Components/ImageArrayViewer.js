@@ -26,7 +26,7 @@ function ImageArrayViewer() {
     const currentItem = useMemo(()=> imagesWindowArray?.[index], [imagesWindowArray, index])
     const currentUrl = useMemo(()=>{
         if(!currentItem) return ''
-        return currentItem.public_url || currentItem.publicUrl || ''
+        return currentItem.public_url || ''
     },[currentItem])
 
     if(!imagesWindowArray) return(<></>)

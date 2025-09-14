@@ -32,7 +32,7 @@ export default function ImageEditBox({ index, image, onDrop }){
         if(isDragOver) dispatch(setEditorDragOverIndex(null))
     }
 
-    const url = image?.publicUrl || image?.public_url || ""
+    const url = image?.public_url || ""
 
     return (
         <div
