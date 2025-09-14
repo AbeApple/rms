@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import "../Input/InputSupabase.css"
 import { supabase } from "../Supabase"
-import { setImagesWindowArray, setImagesWindowIndex } from "../../Global/store"
+import { setImagesWindowArray, setImagesWindowIndex, setSelectedEditImageArray } from "../../Global/store"
 import "./ImageUploader2.css"
 
 /*
@@ -403,7 +403,7 @@ export default function ImageUploader2({bucket = "user_images", table="images", 
                     <div
                         className="edit-button"
                         title={"Edit Images"}
-                        onClick={(e)=>{setShowImageEditor(true); e.stopPropagation()}}
+                        onClick={(e)=>{ e.stopPropagation(); dispatch(setSelectedEditImageArray(displayUrlArray || [])); }}
                     >
                         ✎
                     </div>

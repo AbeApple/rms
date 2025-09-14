@@ -9,6 +9,7 @@ import ImagesWindow from './Features/Windows/Images/ImagesWIndow';
 import MenuWindow from './Features/Windows/Menu/MenuWindow';
 import AuthProvider from './DB/auth/AuthProvider';
 import ImageArrayViewer from './Components/ImageArrayViewer';
+import ImageArrayEditorWindow from './Features/Windows/Images/Editor/ImageArrayEditorWindow';
 
 /*
 
@@ -52,6 +53,7 @@ function App() {
         <ContactWindow />
         <ImagesWindow />
         <ImageArrayViewer />
+        <ImageArrayEditorWindow />
 
         <EventsLoader />
         <ContactsLoader />

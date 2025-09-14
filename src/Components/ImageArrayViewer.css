@@ -8,6 +8,11 @@
     overflow: hidden;
 }
 
+/* Ensure the large image viewer appears above other windows */
+.window.images-viewer-window{
+    z-index: 3;
+}
+
 .imageArrayViewer .image-view{
     max-width: 100%;
     max-height: 100%;

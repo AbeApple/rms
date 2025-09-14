@@ -35,6 +35,7 @@ function ImageArrayViewer() {
         <Window
             title="Images"
             onClose={()=>dispatch(setImagesWindowArray(null))}
+            className="images-viewer-window"
         >
             <div className="imageArrayViewer">
                 <button className="nav-btn nav-left" onClick={lastImage}>{"<"}</button>
