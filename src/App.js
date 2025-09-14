@@ -12,25 +12,28 @@ import ImageArrayViewer from './Components/ImageArrayViewer';
 
 /*
 
-  workingon
+  working on
   
-  events and contacts loading 
-  together at same time with existing O(1) jsons to get contact id
-  maybe cashing
-  understanding the flow and making sure its logical
 
-  Auth provider component
-  Data loading checks for user id when loading
-
-  Day notes table
 
   Images
-  uploading multiple
-  viwing, editing, moving around, delete etc
-  view on hover, circle in event
-  Map image too for map pinpoint
+    viwing, editing, moving around, delete etc
+    view on hover, circle in event
+    Map image too for map pinpoint
 
-  contact dependents
+  contact
+    create new
+    search
+    view/edit from search
+    contact dependents
+    events from contacts
+    stats
+
+  Shortcuts
+    alt+c for new contact with name input focused
+    alt+s for search with name box focused
+    esc to close top window
+    etc
 
   UI
   Now that functionality is there create a better UI

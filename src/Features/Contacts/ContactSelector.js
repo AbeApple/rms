@@ -47,6 +47,13 @@ function ContactSelector({ initialContactId, onContactSelected }) {
           >
             ✏️
           </button>
+          <button
+            className="mode-toggle-button"
+            onClick={() => handleContactSelect('new')}
+            title="Create new contact"
+          >
+            ➕ New
+          </button>
           <Autocomplete
             options={contactsArray}
             getOptionLabel={(option) => option.name}
