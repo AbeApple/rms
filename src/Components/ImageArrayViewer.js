@@ -41,7 +41,7 @@ function ImageArrayViewer() {
                 <button className="nav-btn nav-left" onClick={lastImage}>{"<"}</button>
                 <img key={index} className="image-view" src={currentUrl} alt="image" onClick={()=>dispatch(setImagesWindowIndex(index))} />
                 <button className="nav-btn nav-right" onClick={nextImage}>{">"}</button>
-                <div className="bottom-bar">{`${index + 1} of ${imagesWindowArray?.length || 0}`} {currentItem?.index !== undefined ? `| index: ${currentItem.index}` : ''}</div>
+                <div className="bottom-bar">{`${index + 1} of ${imagesWindowArray?.length || 0}`}</div>
             </div>
         </Window>
     )

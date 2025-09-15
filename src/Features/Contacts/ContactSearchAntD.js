@@ -6,7 +6,7 @@ import InputSupabase from '../../DB/Input/InputSupabase';
 import './ContactSearchAntD.css';
 import { upsertContact } from '../../Global/contactsSlice';
 
-function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contactData }) {
+function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contactData, setDbStatusCallback = ()=>{} }) {
   const disatch = useDispatch()
   const [mode, setMode] = useState(parentContactId ? 'edit' : 'search');
   const userId = useSelector(state => state.auth?.userId)
@@ -86,12 +86,19 @@ function ContactSearchAntD({ parentContactId, onContactSelected = ()=>{}, contac
             className="contact-input"
             defaultStartData={{ user_id: userId }}
 
+            onSaveStart={() => {
+              if(typeof setDbStatusCallback === 'function') setDbStatusCallback('Saving')
+            }}
             onSaved={(data) => {
               // When a new contact is created the id will be sent to the parent which will sent it to its parent, they will load and update data accordingly
               console.log(`[ContactSearchAntD] updated contact with ID: ${data.id}`);
               onContactSelected(data.id);
               // Also need to put it in the global state so the contacts objects is current
               disatch(upsertContact(data))
+              if(typeof setDbStatusCallback === 'function') setDbStatusCallback('Saved')
+            }}
+            onError={(msg)=>{
+              if(typeof setDbStatusCallback === 'function') setDbStatusCallback('Error')
             }}
           />
         )}

@@ -1,22 +1,24 @@
-import { useDispatch, useSelector } from "react-redux"
 import Window from "../../Window"
 import "./ImageArrayEditor.css"
 import ImageArrayEditor from "./ImageArrayEditor"
-import { setSelectedEditImageArray } from "../../../../Global/store"
 
-export default function ImageArrayEditorWindow(){
-
-    const selectedEditImageArray = useSelector(state => state.ui.selectedEditImageArray)
-    const dispatch = useDispatch()
-
-    if(!selectedEditImageArray) return (<></>)
+/*
+    will put this in the image uploader
+    then have the image uplaoder have local state to keep track of the edit image array
+    and there will be a callback for when the ordere is changed
+    
+*/
+export default function ImageArrayEditorWindow({onReorder, imagesArray, onClose}){
 
     return (
         <Window
             title="Edit Image Order"
-            onClose={()=>dispatch(setSelectedEditImageArray())}
+            onClose={onClose}
         >
-            <ImageArrayEditor></ImageArrayEditor>
+            <ImageArrayEditor 
+                onReorder={onReorder} 
+                imagesArray={imagesArray}
+            ></ImageArrayEditor>
         </Window>
     )
 }

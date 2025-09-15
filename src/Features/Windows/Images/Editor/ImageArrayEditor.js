@@ -1,84 +1,118 @@
-import { useDispatch, useSelector } from "react-redux"
 import "./ImageArrayEditor.css"
 import ImageEditBox from "./ImageEditBox"
-import { setEditorDragOverIndex, setEditorDragStartIndex, setSelectedEditImageArray } from "../../../../Global/store"
+import { useEffect, useState } from "react"
 import { supabase } from "../../../../DB/Supabase"
+import SaveStatusIndicator from "../../../../Components/SaveStatusIndicator"
 
-export default function ImageArrayEditor(){
-    const dispatch = useDispatch()
-    const images = useSelector(state => state.ui.selectedEditImageArray) || []
+// ImageArrayEditor provides a simple DnD list editor for images.
+// Hovered target is highlighted. On drop, rebuilds indices and emits updated array via onReorder.
+export default function ImageArrayEditor({ onReorder, imagesArray = [], table = "images" }){
 
-    function handleDropOnBox(targetIndex){
-        return async (startIdx, dropIdx) => {
-            // Ensure indices are numbers
-            const s = Number(startIdx)
-            const d = Number(dropIdx ?? targetIndex)
-            console.log("ImageArrayEditor drop:", { startIndex: s, dropIndex: d })
+    // Local working copy for immediate UI responsiveness
+    const [localImages, setLocalImages] = useState(() => Array.isArray(imagesArray) ? [...imagesArray] : [])
 
-            if(Number.isNaN(s) || Number.isNaN(d)){
-                dispatch(setEditorDragOverIndex(null))
-                dispatch(setEditorDragStartIndex(null))
-                return
+    // DnD state
+    const [startIndex, setStartIndex] = useState(null)
+    const [hoverIndex, setHoverIndex] = useState(null)
+
+    // Save indicator state
+    const [saving, setSaving] = useState(false)
+    const [saveError, setSaveError] = useState(null)
+
+    // Keep local state in sync with parent updates
+    useEffect(() => {
+        setLocalImages(Array.isArray(imagesArray) ? [...imagesArray] : [])
+    }, [imagesArray])
+
+    // Compute a stable key for each item
+    const keyFor = (img, idx) => (img?.id ?? img?.imageId ?? img?.storage_key ?? img?.public_url ?? "img") + "-" + idx
+
+    // Perform reorder and rebuild index attributes
+    async function commitReorder(start, target){
+        if(start === null || target === null) return
+        if(start === target) return
+
+        // Create new order by moving item from start to target
+        const arr = [...localImages]
+        const [moved] = arr.splice(start, 1)
+        arr.splice(target, 0, moved)
+
+        // Rebuild index fields to match array positions
+        const updated = arr.map((img, newIdx) => ({ ...img, index: newIdx }))
+
+        // Optimistically update local UI
+        setLocalImages(updated)
+
+        // Persist new indices with a single batch upsert
+        try{
+            setSaving(true)
+            setSaveError(null)
+            const rows = updated
+                .map(img => ({ id: img?.id, index: img?.index }))
+                .filter(r => r.id != null && typeof r.index === 'number')
+
+            if(rows.length > 0){
+                const { error } = await supabase
+                    .from(table)
+                    .upsert(rows, { onConflict: 'id' })
+                    .select('*')
+
+                if(error){
+                    console.error('Reorder upsert error:', error)
+                    setSaveError('Save error')
+                }
             }
-            if(s === d){
-                dispatch(setEditorDragOverIndex(null))
-                dispatch(setEditorDragStartIndex(null))
-                return
-            }
 
-            try{
-                // Create a new ordered copy by moving element s -> d
-                const current = Array.isArray(images) ? [...images] : []
-                // Taking the moved image out of the array
-                const [moved] = current.splice(s, 1)
-                // Putting it back into the array at the destination index
-                current.splice(d, 0, moved)
-
-                // Re-number indices 0..n-1 (so a new images array with the index value updated)
-                const reIndexed = current.map((img, i) => ({ ...img, index: i }))
-
-                // Persist to DB: update each row's index by id
-                // images table: id (bigint), index (text) per schema in App.js comment
-                const updates = reIndexed.map(async (img, i) => {
-                    const id = img.imageId || img.id
-                    if(!id) return null
-                    const { error } = await supabase
-                        .from('images')
-                        .update({ index: i })
-                        .eq('id', id)
-                    if(error){
-                        console.error('Update index error for id', id, error)
-                    }
-                    return null
-                })
-                await Promise.all(updates)
-
-                // Update Redux with new order so UI reflects change
-                dispatch(setSelectedEditImageArray(reIndexed))
-            }catch(err){
-                console.error('Error reordering images:', err)
-            }finally{
-                // Clear drag-over highlight after drop
-                dispatch(setEditorDragOverIndex(null))
-                dispatch(setEditorDragStartIndex(null))
-            }
+            // Notify parent with full updated array (for e.g. setting main image)
+            onReorder?.(updated)
+        }catch(err){
+            console.error("commitReorder error:", err)
+            setSaveError('Save error')
+        } finally {
+            setSaving(false)
         }
     }
 
-    if(!Array.isArray(images) || images.length === 0){
-        return (<div className="image-array-editor empty">No images to edit</div>)
+    // Handlers passed to each box
+    function handleDragStart(idx){
+        setStartIndex(idx)
+    }
+    function handleDragOver(idx){
+        setHoverIndex(idx)
+    }
+    function handleDragLeave(idx){
+        // Only clear if this index was the current hover
+        setHoverIndex(prev => (prev === idx ? null : prev))
+    }
+    async function handleDrop(idx){
+        const target = idx
+        await commitReorder(startIndex, target)
+        // Reset transient DnD state
+        setStartIndex(null)
+        setHoverIndex(null)
+    }
+
+    // Optional click handler (reserved for future image viewer integration)
+    function handleClick(e, idx){
+        e?.stopPropagation?.()
     }
 
     return (
-        <div className="image-array-editor">
-            {images.map((img, idx) => (
+        <div className="image-array-editor" style={{ position: 'relative' }}>
+            <SaveStatusIndicator saving={saving} error={saveError} />
+            {localImages?.map((img, idx) => (
                 <ImageEditBox
-                    key={(img.imageId ?? img.storageKey ?? img.public_url ?? "img") + "-" + idx}
+                    key={keyFor(img, idx)}
                     index={idx}
                     image={img}
-                    onDrop={handleDropOnBox(idx)}
+                    isDragOver={hoverIndex === idx}
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={() => handleDragOver(idx)}
+                    onDrop={() => handleDrop(idx)}
+                    onDragLeave={() => handleDragLeave(idx)}
+                    onClick={(e)=>handleClick(e, idx)}
                 />
             ))}
         </div>
     )
-} 
+}

@@ -1,38 +1,41 @@
-import { useDispatch, useSelector } from "react-redux"
 import "./ImageArrayEditor.css"
-import { setEditorDragOverIndex, setEditorDragStartIndex, setImagesWindowArray, setImagesWindowIndex } from "../../../../Global/store"
 
-export default function ImageEditBox({ index, image, onDrop }){
-    const dispatch = useDispatch()
-    const dragOverIndex = useSelector(state => state.ui.editorDragOverIndex)
-    const dragStartIndex = useSelector(state => state.ui.editorDragStartIndex)
-    const editorImages = useSelector(state => state.ui.selectedEditImageArray) || []
-    const isDragOver = dragOverIndex === index
+// The index values used for reordering are i
+// Simple presentational edit box for DnD with local-state driven props
+// Props:
+// - index: number for display/debug
+// - image: the image object (expects public_url)
+// - isDragOver: bool to highlight when hovered during drag
+// - onDragStart, onDragOver, onDrop, onDragLeave, onClick: handlers provided by parent
+export default function ImageEditBox({ index, image, isDragOver, onDragStart, onDragOver, onDrop, onDragLeave, onClick }){
+    // URL to render
+    const url = image?.public_url || ""
 
+    // Local wrappers to ensure consistent DnD behavior
     function handleDragStart(e){
         e.dataTransfer.effectAllowed = "move"
-        dispatch(setEditorDragStartIndex(index))
+        onDragStart?.(e)
     }
 
     function handleDragOver(e){
         e.preventDefault()
         e.dataTransfer.dropEffect = "move"
-        dispatch(setEditorDragOverIndex(index))
+        onDragOver?.(e)
     }
 
     function handleDrop(e){
         e.preventDefault()
         e.stopPropagation()
-        if(typeof onDrop === 'function') onDrop(dragStartIndex, index)
-        dispatch(setEditorDragOverIndex(null))
+        onDrop?.(e)
     }
 
-    function handleDragLeave(){
-        // Only clear if leaving this box
-        if(isDragOver) dispatch(setEditorDragOverIndex(null))
+    function handleDragLeave(e){
+        onDragLeave?.(e)
     }
 
-    const url = image?.public_url || ""
+    function handleClick(e){
+        onClick?.(e)
+    }
 
     return (
         <div
@@ -42,7 +45,7 @@ export default function ImageEditBox({ index, image, onDrop }){
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onDragLeave={handleDragLeave}
-            onClick={(e)=>{ e.stopPropagation(); dispatch(setImagesWindowArray(editorImages)); dispatch(setImagesWindowIndex(index)); }}
+            onClick={handleClick}
             title={`Index: ${index}`}
         >
             {url ? (

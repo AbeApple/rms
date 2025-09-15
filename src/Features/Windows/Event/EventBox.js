@@ -33,6 +33,7 @@ export default function EventBox() {
     // Starting with the simple data in the global state (contact_id, title, date)
     const [eventData, setEventData] = useState(events && events[selectedEventDate] && events[selectedEventDate].find(event => event?.id === selectedEventID))
     const isCreatingRef = useRef()
+    const savingAwaitingLoadRef = useRef(false)
 
 
     // State for tracking loading errors
@@ -48,19 +49,30 @@ export default function EventBox() {
 
     },[selectedEventID])
 
+    // If we are awaiting a load after save (e.g., created new event), only turn off saving once loading completes
+    useEffect(()=>{
+        if(!isLoading && isSaving && savingAwaitingLoadRef.current){
+            savingAwaitingLoadRef.current = false
+            setIsSaving(false)
+            setSaveError(null)
+        }
+    },[isLoading])
+
     async function loadEventData() {
         console.log("Loading event data");
         setIsLoading(true);
+        setLoadError(null);
 
         // Get current date in YYYY-MM-DD format for default value
         const today = new Date().toISOString().split('T')[0];
         const eventDate = selectedEventDate || today;
 
-        // If there is no event id (creating new event) just set the date
-        if(!selectedEventID){
+        // If there is no event id or it's a placeholder 'new', just set the date and stop loading
+        if(!selectedEventID || selectedEventID === 'new'){
             setEventData({
                 date: eventDate,
             });
+            setIsLoading(false);
         }
         
         // If we have a valid event ID, fetch the event data from Supabase
@@ -180,23 +192,38 @@ export default function EventBox() {
         
         console.log("event contact id changed: ", contactId)
         // If there is an event id update the event
-        if (selectedEventID && selectedEventID !== 'new') {
-            // If there is no contact and no event just return
-            if(!contactId) {
-                console.log("no contactId or eventID returning")
-                return
+        try{
+            setIsSaving(true)
+            if (selectedEventID && selectedEventID !== 'new') {
+                // If there is no contact and no event just return
+                if(!contactId) {
+                    console.log("no contactId or eventID returning")
+                    setIsSaving(false)
+                    return
+                }
+                const eventDate = eventData?.date || selectedEventDate;
+                let newEventData = { id: selectedEventID, contact_id: contactId, date: eventDate }
+                console.log("updated event ", newEventData)
+                // Update existing event with new contact ID
+                await updateEventDb(newEventData);
+                dispatch(upsertEvent(newEventData))
+            } 
+            // If not create the event with the contact id
+            else {
+                // Create new event with contact ID
+                // Creating a brand new event will trigger a data load; delay turning off saving until that finishes
+                savingAwaitingLoadRef.current = true
+                await createEvent({ contact_id: contactId });
             }
-            const eventDate = eventData?.date || selectedEventDate;
-            let newEventData = { id: selectedEventID, contact_id: contactId, date: eventDate }
-            console.log("updated event ", newEventData)
-            // Update existing event with new contact ID
-            await updateEventDb(newEventData);
-            dispatch(upsertEvent(newEventData))
-        } 
-        // If not create the event with the contact id
-        else {
-            // Create new event with contact ID
-            await createEvent({ contact_id: contactId });
+            // For update path, loading likely won't change, so clear saving immediately when not awaiting
+            if(!savingAwaitingLoadRef.current){
+                setIsSaving(false)
+                setSaveError(null)
+            }
+        }catch(err){
+            console.error('Error updating/creating event from contact change:', err)
+            setIsSaving(false)
+            setSaveError('Error saving event')
         }
     }
 

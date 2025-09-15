@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .imageUploaderSB .imageArrow{
@@ -63,4 +64,11 @@
 }
 .imageUploaderSB .edit-button:hover{
   opacity: 0.85;
+}
+.imagesDropText{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgb(75, 75, 75);
+  user-select: none;
 }

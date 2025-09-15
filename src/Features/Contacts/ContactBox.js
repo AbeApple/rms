@@ -10,7 +10,6 @@ import InputSupabase from '../../DB/Input/InputSupabase';
 import { eventStatusClasses } from '../Events/EventsLoader';
 import SaveStatusIndicator from '../../Components/SaveStatusIndicator';
 import ContactImages from './ContactImages';
-import ContactImages2 from './ContactImages2';
 
 export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
   const dispatch = useDispatch();
@@ -139,16 +138,45 @@ export default function ContactBox({contactID, onContactIDChanged = ()=>{}}) {
         parentContactId={selectedContactIdLocal} 
         onContactSelected={handleContactSelected}
         contactData={contactData}
+        setDbStatusCallback={(status)=>{
+          if(status === 'Uploading' || status === 'Saving'){
+            setIsSaving(true)
+            setSaveError(null)
+          }else if(status === 'Saved'){
+            setIsSaving(false)
+            setSaveError(null)
+          }else if(status === 'Error'){
+            setIsSaving(false)
+            setSaveError('Save error')
+          }
+        }}
       />
       
       <div className="contact-details-container">
         <div className="contact-image">
           {/* Loads and displays existing (starting with default),  */}
-          <ContactImages2 
+          <ContactImages 
             contactId={selectedContactIdLocal}
             userId={userId}
             defaultImage={{public_url: contactData?.main_image}}
             createNewCallback={createContact}
+            setDbStatusCallback={(status)=>{
+              // Reflect uploader status in the SaveStatusIndicator
+              if(status === 'Uploading' || status === 'Saving'){
+                setIsSaving(true)
+                setSaveError(null)
+              }else if(status === 'Saved'){
+                setIsSaving(false)
+                setSaveError(null)
+              }else if(status === 'Error'){
+                setIsSaving(false)
+                setSaveError('Image upload error')
+              }
+            }}
+            onMainImageUpdated={(url)=>{
+              // Update local ContactBox state immediately so UI reflects the new main image without refresh
+              setContactData(prev => ({ ...(prev || {}), main_image: url }))
+            }}
           />
           <button className="open-button" onClick={() => dispatch(setSelectedContactID(selectedContactIdLocal))}>
             Open <span className="arrow-icon">↗</span>

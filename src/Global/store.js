@@ -11,9 +11,6 @@ const uiSlice = createSlice({
     showMenu: false,
     imagesWindowArray: null,
     imagesWindowIndex: 0,
-    selectedEditImageArray: null,
-    editorDragStartIndex: null,
-    editorDragOverIndex: null,
   },
   reducers: {
     setShowMenu(state, action) {
@@ -28,24 +25,10 @@ const uiSlice = createSlice({
       if(Number.isNaN(idx)) idx = 0
       state.imagesWindowIndex = idx
     },
-    setSelectedEditImageArray(state, action){
-      state.selectedEditImageArray = action.payload || null
-      // Reset drag indices when new array is set/cleared
-      state.editorDragStartIndex = null
-      state.editorDragOverIndex = null
-    },
-    setEditorDragStartIndex(state, action){
-      const val = action.payload
-      state.editorDragStartIndex = (val === 0 || Number.isInteger(val)) ? val : null
-    },
-    setEditorDragOverIndex(state, action){
-      const val = action.payload
-      state.editorDragOverIndex = (val === 0 || Number.isInteger(val)) ? val : null
-    }
   },
 });
 
-export const { setShowMenu, setImagesWindowArray, setImagesWindowIndex, setSelectedEditImageArray, setEditorDragStartIndex, setEditorDragOverIndex } = uiSlice.actions;
+export const { setShowMenu, setImagesWindowArray, setImagesWindowIndex } = uiSlice.actions;
 
 // Slice to track visible months and selected day
 const calendarSlice = createSlice({

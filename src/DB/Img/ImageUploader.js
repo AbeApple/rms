@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import "../Input/InputSupabase.css"
 import { supabase } from "../Supabase"
-import { setImagesWindowArray, setImagesWindowIndex, setSelectedEditImageArray } from "../../Global/store"
-import "./ImageUploader2.css"
+import { setImagesWindowArray, setImagesWindowIndex } from "../../Global/store"
+import "./ImageUploader.css"
+import ImageArrayEditorWindow from "../../Features/Windows/Images/Editor/ImageArrayEditorWindow"
 
 /*
     will be able to upload 1 or many files
@@ -25,12 +26,13 @@ import "./ImageUploader2.css"
     there will be arrows on the main display of the image that allows user to scroll through the images
 
 */
-export default function ImageUploader3({bucket = "user_images", table="images", itemID, itemIdAttribute="contact_id", existingImagesArray, setDbStatusCallback = () => {}, afterUploadCallback, defaultImage, createNewCallback}) {
+export default function ImageUploader({bucket = "user_images", table="images", itemID, itemIdAttribute="contact_id", existingImagesArray, setDbStatusCallback = () => {}, afterUploadCallback, defaultImage, createNewCallback, onReorder}) {
 
     const userId = useSelector(state => state.auth?.userId)
     const [imagesArray, setImagesArray] = useState([])
     const [displayIndex, setDisplayIndex] = useState(0)
-    const [userMessage, setUserMessage] = useState(0)
+    const [userMessage, setUserMessage] = useState("")
+    const [showEditor, setShowEditor] = useState()
     const dispatch = useDispatch()
 
     // Show an initial default image if there is one
@@ -62,13 +64,10 @@ export default function ImageUploader3({bucket = "user_images", table="images", 
 
     },[table, userId, itemIdAttribute, itemID])
 
-    async function handleDrop(event){
-        event.preventDefault()
-
-        // Capture files BEFORE any await to avoid SyntheticEvent pooling issues
-        const files = Array.from(event?.dataTransfer?.files || [])
-        console.log("files: ", files)
-        if(!files.length){
+    // Reusable flow for handling selected/dropped files
+    async function processFiles(files){
+        // Validate
+        if(!files || files.length === 0){
             setUserMessage("No files detected")
             return
         }
@@ -82,25 +81,65 @@ export default function ImageUploader3({bucket = "user_images", table="images", 
             else{
                 setUserMessage("Must have valid ID or createNewCallback")
                 return
-            } 
+            }
 
-        // Call function to upload them in the database, get an array of objects with image data (id, public_url, etc)
-        const imagesData = await uploadFilesToStorage(files)
+        try{
+            // Upload to storage
+            setDbStatusCallback('Uploading')
+            const imagesData = await uploadFilesToStorage(files)
 
-        // Call function to upload images to table and get refreshed list
-        const refreshedImages = await updateTable(imagesData, itemIDLocal)
+            // Save to DB
+            setDbStatusCallback('Saving')
+            const refreshedImages = await updateTable(imagesData, itemIDLocal)
 
-        // Update local UI immediately
-        if(Array.isArray(refreshedImages))
-            setImagesArray(refreshedImages)
-        console.log("refreshedImages: ", refreshedImages)
+            // Update local UI immediately
+            if(Array.isArray(refreshedImages))
+                setImagesArray(refreshedImages)
+            console.log("refreshedImages: ", refreshedImages)
 
-        // Call callback function if one is provided (include item id for consumers)
-        if(afterUploadCallback && Array.isArray(refreshedImages))
-            afterUploadCallback(refreshedImages, itemIDLocal)
+            // Notify
+            if(afterUploadCallback && Array.isArray(refreshedImages))
+                afterUploadCallback(refreshedImages, itemIDLocal)
+
+            setDbStatusCallback('Saved')
+        }catch(err){
+            console.error('Image upload/save error:', err)
+            setUserMessage('Error')
+            setDbStatusCallback('Error')
+        }
+    }
+
+    async function handleDrop(event){
+        event.preventDefault()
+
+        // Capture files BEFORE any await to avoid SyntheticEvent pooling issues
+        const files = Array.from(event?.dataTransfer?.files || [])
+        console.log("files: ", files)
+
+        await processFiles(files)
 
     }
 
+    function handleClick(e){
+        e?.stopPropagation?.()
+        // If there is an image array with over 0 images open the image viewer by setting the image array and index in global state
+        if(Array.isArray(imagesArray) && imagesArray.length > 0){
+            dispatch(setImagesWindowArray(imagesArray))
+            dispatch(setImagesWindowIndex(displayIndex))
+            return
+        }
+
+        // If there are no images, open a file selector to select images for upload; when selected, upload them
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = 'image/*'
+        input.multiple = true
+        input.onchange = async (ev) => {
+            const files = Array.from(ev?.target?.files || [])
+            await processFiles(files)
+        }
+        input.click()
+    }
     // #region DB helpers
 
     async function uploadFilesToStorage(files){
@@ -144,7 +183,6 @@ export default function ImageUploader3({bucket = "user_images", table="images", 
         return Promise.all(uploadPromises);
     }
   
-    // y item id local
     async function updateTable(newImagesData = [], itemIDLocal) {
         try {
             // Set initial user message
@@ -290,30 +328,79 @@ export default function ImageUploader3({bucket = "user_images", table="images", 
 
     // #endregion UI helpers
 
+    // #region Editor reorder handler
+    // Ensure local ImageUploader state reflects editor changes immediately and still notify parent
+    function handleEditorReorder(updatedArray){
+        if(Array.isArray(updatedArray)){
+            setImagesArray(updatedArray)
+            // Show the first image after reorder
+            setDisplayIndex(0)
+        }
+        if(typeof onReorder === 'function'){
+            try{ onReorder(updatedArray, itemID) } catch(err){ console.error('onReorder parent handler error:', err) }
+        }
+    }
+    // #endregion Editor reorder handler
+
+    // Reordering persistence is performed within ImageArrayEditor2.
+
 
     return (
-        <div className="imageUploaderSB" 
-            onDrop={handleDrop}
-            onDragOver={e=>e.preventDefault()} 
-        >
-            <>
-                <div className="imageArrow imageArrowLeft" title="Previous Image" onClick={lastImage}>{"<"}</div>
-                <img 
-                    src={imagesArray[displayIndex]?.public_url} 
-                    style={{objectFit: "cover"}} 
-                />
-                <div className="imageArrow imageArrowRight" title="Next Image" onClick={nextImage}>{">"}</div>
-            </>
-            <div className="imageBottomInfo">
-                {userMessage}
-                <div 
-                    className="edit-button" 
-                    title="Edit Images"
-                    onClick={(e)=>{ e.stopPropagation(); dispatch(setSelectedEditImageArray(imagesArray)); }}
-                >
-                    ✎
-                </div>
+        <>
+            <div className="imageUploaderSB" 
+                onDrop={handleDrop}
+                onDragOver={e=>e.preventDefault()} 
+                onClick={handleClick}
+            >
+                <>
+                    {imagesArray && imagesArray.length > 0 && 
+                        <div 
+                            className="imageArrow imageArrowLeft" 
+                            title="Previous Image" 
+                            onClick={lastImage}
+                        >
+                            {"<"}
+                        </div>
+                    }
+
+                    <img 
+                        src={imagesArray[displayIndex]?.public_url} 
+                        style={{objectFit: "cover"}} 
+                    />
+
+                    {imagesArray && imagesArray.length > 0 && 
+                        <div 
+                            className="imageArrow imageArrowRight" 
+                            title="Next Image" 
+                            onClick={nextImage}
+                        >
+                            {">"}
+                        </div>
+                    }
+                    {!imagesArray || imagesArray.length === 0 && <div className="imagesDropText">Drop Images Here</div>}
+                </>
+            
+                {Array.isArray(imagesArray) && imagesArray.length > 0 && (
+                    <div className="imageBottomInfo">
+                        {userMessage}
+                        <div 
+                            className="edit-button" 
+                            title="Edit Images"
+                            // onClick={(e)=>{ e.stopPropagation(); dispatch(setSelectedEditImageArray(imagesArray)); }}
+                            onClick={(e)=>{ e.stopPropagation(); setShowEditor(true)}}
+                        >
+                            ✎
+                        </div>
+                    </div>
+                )}
             </div>
-        </div>
+            {showEditor && 
+                <ImageArrayEditorWindow 
+                    imagesArray={imagesArray} 
+                    onReorder={handleEditorReorder}
+                    onClose={()=>setShowEditor()}
+                />
+            }
+        </>
     )
 }
