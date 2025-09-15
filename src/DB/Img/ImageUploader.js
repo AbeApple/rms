@@ -399,6 +399,11 @@ export default function ImageUploader({bucket = "user_images", table="images", i
                     imagesArray={imagesArray} 
                     onReorder={handleEditorReorder}
                     onClose={()=>setShowEditor()}
+                    bucket={bucket}
+                    table={table}
+                    itemID={itemID}
+                    itemIdAttribute={itemIdAttribute}
+                    userId={userId}
                 />
             }
         </>

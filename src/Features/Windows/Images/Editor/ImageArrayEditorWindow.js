@@ -8,7 +8,7 @@ import ImageArrayEditor from "./ImageArrayEditor"
     and there will be a callback for when the ordere is changed
     
 */
-export default function ImageArrayEditorWindow({onReorder, imagesArray, onClose}){
+export default function ImageArrayEditorWindow({onReorder, imagesArray, onClose, bucket = "user_images", table = "images", itemID, itemIdAttribute = "contact_id", userId}){
 
     return (
         <Window
@@ -18,6 +18,11 @@ export default function ImageArrayEditorWindow({onReorder, imagesArray, onClose}
             <ImageArrayEditor 
                 onReorder={onReorder} 
                 imagesArray={imagesArray}
+                bucket={bucket}
+                table={table}
+                itemID={itemID}
+                itemIdAttribute={itemIdAttribute}
+                userId={userId}
             ></ImageArrayEditor>
         </Window>
     )
