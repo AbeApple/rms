@@ -4,10 +4,14 @@ import { useEffect, useState } from "react"
 import { supabase } from "../../../../DB/Supabase"
 import SaveStatusIndicator from "../../../../Components/SaveStatusIndicator"
 import useImageArrayOps from "../../../../DB/Img/hooks/useImageArrayOps"
+import { useDispatch } from "react-redux"
+import { setImagesWindowArray, setImagesWindowIndex } from "../../../../Global/store"
 
 // ImageArrayEditor provides a simple DnD list editor for images.
 // Hovered target is highlighted. On drop, rebuilds indices and emits updated array via onReorder.
 export default function ImageArrayEditor({ onReorder, imagesArray = [], table = "images", bucket = "user_images", itemID, itemIdAttribute = "contact_id", userId }){
+
+    const dispatcher = useDispatch()
 
     // Local working copy for immediate UI responsiveness
     const [localImages, setLocalImages] = useState(() => Array.isArray(imagesArray) ? [...imagesArray] : [])
@@ -145,36 +149,24 @@ export default function ImageArrayEditor({ onReorder, imagesArray = [], table = 
 
     function handleClick(e, idx){
         e?.stopPropagation?.()
+        dispatcher(setImagesWindowArray(imagesArray))
+        dispatcher(setImagesWindowIndex(idx))
     }
 
     return (
         <div className="image-array-editor" style={{ position: 'relative' }} onDragOver={handleContainerDragOver} onDrop={handleContainerDrop}>
             <SaveStatusIndicator saving={saving} error={saveError} />
             {localImages?.map((img, idx) => (
-                <div key={keyFor(img, idx)} style={{ position: 'relative' }}>
-                    {/* Options button */}
-                    <div style={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
-                        <button className="image-options-button" title="Options" onClick={(e)=>{ e.stopPropagation(); setOpenMenuIndex(prev=> prev===idx ? null : idx) }}>
-                            ⋮
-                        </button>
-                        {openMenuIndex === idx && (
-                            <div className="image-options-menu" style={{ position: 'absolute', top: 24, right: 0, background: 'white', border: '1px solid #ddd', borderRadius: 4, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-                                <div className="image-options-item" style={{ padding: '6px 10px', cursor: 'pointer' }} onClick={(e)=>{ e.stopPropagation(); setOpenMenuIndex(null); deleteImage(idx) }}>Delete</div>
-                            </div>
-                        )}
-                    </div>
-
-                    <ImageEditBox
-                        index={idx}
-                        image={img}
-                        isDragOver={hoverIndex === idx}
-                        onDragStart={() => handleDragStart(idx)}
-                        onDragOver={() => handleDragOver(idx)}
-                        onDrop={() => handleDrop(idx)}
-                        onDragLeave={() => handleDragLeave(idx)}
-                        onClick={(e)=>handleClick(e, idx)}
-                    />
-                </div>
+                <ImageEditBox
+                    index={idx}
+                    image={img}
+                    isDragOver={hoverIndex === idx}
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={() => handleDragOver(idx)}
+                    onDrop={() => handleDrop(idx)}
+                    onDragLeave={() => handleDragLeave(idx)}
+                    onClick={(e)=>handleClick(e, idx)}
+                />
             ))}
         </div>
     )

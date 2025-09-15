@@ -23,6 +23,70 @@ const eventsSlice = createSlice({
       // Increment the counter to trigger a reload
       state.reloadTrigger = state.reloadTrigger + 1;
     },
+    // Remove an event by id across all date buckets
+    removeEventById(state, action){
+      const eventId = action.payload
+      if(!eventId) return
+      for(const date in state.events){
+        const list = state.events[date]
+        if(!Array.isArray(list)) continue
+        const idx = list.findIndex(e => e.id === eventId)
+        if(idx !== -1){
+          list.splice(idx, 1)
+          if(list.length === 0) delete state.events[date]
+          break
+        }
+      }
+    },
+    // Move an event from one date bucket to another and optionally update its fields
+    moveEventToDate(state, action){
+      const { eventId, fromDate, toDate, updatedData } = action.payload || {}
+      if(!eventId || !toDate) return
+
+      // Locate the event in the specified fromDate or search all dates
+      let srcDate = fromDate
+      let eventObj = null
+      if(srcDate && Array.isArray(state.events[srcDate])){
+        const idx = state.events[srcDate].findIndex(e => e.id === eventId)
+        if(idx !== -1){
+          eventObj = state.events[srcDate][idx]
+          state.events[srcDate].splice(idx, 1)
+          if(state.events[srcDate].length === 0) delete state.events[srcDate]
+        }
+      }
+      if(!eventObj){
+        for(const d in state.events){
+          const list = state.events[d]
+          if(!Array.isArray(list)) continue
+          const idx = list.findIndex(e => e.id === eventId)
+          if(idx !== -1){
+            eventObj = list[idx]
+            list.splice(idx, 1)
+            if(list.length === 0) delete state.events[d]
+            srcDate = d
+            break
+          }
+        }
+      }
+
+      if(!eventObj){
+        // If not found, create from updatedData if present
+        if(updatedData) eventObj = { id: eventId, ...updatedData }
+        else return
+      }
+
+      // Prepare target bucket
+      if(!Array.isArray(state.events[toDate])) state.events[toDate] = []
+      const merged = { ...eventObj, ...(updatedData || {}), date: toDate }
+      state.events[toDate].push(merged)
+
+      // Sort by start_time if available
+      state.events[toDate].sort((a, b) => {
+        const timeA = a.start_time ? a.start_time.replace(':', '') : '9999';
+        const timeB = b.start_time ? b.start_time.replace(':', '') : '9999';
+        return timeA - timeB;
+      })
+    },
     updateEvent(state, action) {
       const { eventId, updatedData } = action.payload;
       const eventDate = updatedData.date || updatedData.date;
@@ -130,6 +194,8 @@ export const {
   setEvents,
   setNewEventDate,
   reloadEvents,
+  removeEventById,
+  moveEventToDate,
   updateEvent,
   addEvent,
   upsertEvent

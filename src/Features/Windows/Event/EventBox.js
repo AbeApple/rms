@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import "./EventWindow.css"
-import { setSelectedEventID, updateEvent, addEvent, reloadEvents, upsertEvent } from '../../../Global/eventsSlice'
+import { setSelectedEventID, setSelectedEventDate, updateEvent, addEvent, removeEventById, upsertEvent, moveEventToDate } from '../../../Global/eventsSlice'
 import ContactBox from '../../Contacts/ContactBox'
 import { eventStatusClasses } from '../../Events/EventsLoader'
 import InputSupabase from '../../../DB/Input/InputSupabase'
@@ -125,17 +125,76 @@ export default function EventBox() {
             let result = updateEventDb(combinedData)
 
         }
-
         // Update the global state for immeidate display without reload
         dispatch(upsertEvent(combinedData))
 
-        // If the thing that was changed was the data we need to reload events so they all display in the proper day boxes
-        if(newData.date){
-            dispatch(reloadEvents())
+        // If the date changed, move the event between date buckets in Redux without full reload
+        if(newData?.date && (newData.date !== eventData?.date)){
+            dispatch(moveEventToDate({
+                eventId: combinedData?.id,
+                fromDate: eventData?.date || selectedEventDate,
+                toDate: newData.date,
+                updatedData: combinedData,
+            }))
         }
     }
 
+    // Delete the current event
+    async function handleDeleteEvent(){
+        try{
+            if(!selectedEventID || selectedEventID === 'new') return
+            const ok = window.confirm('Delete this event? This cannot be undone.')
+            if(!ok) return
+            setIsSaving(true)
+            setSaveError(null)
 
+            const { error } = await supabase
+                .from('events')
+                .delete()
+                .eq('id', selectedEventID)
+
+            if(error){
+                console.error('Error deleting event:', error)
+                setSaveError('Error deleting event')
+            }else{
+                // Remove from Redux without full reload and close window by clearing selection
+                dispatch(removeEventById(selectedEventID))
+                dispatch(setSelectedEventID(null))
+                dispatch(setSelectedEventDate(null))
+                // Also clear local state so the UI resets immediately
+                setEventData({})
+            }
+        }catch(err){
+            console.error('handleDeleteEvent exception:', err)
+            setSaveError('Error deleting event')
+        }finally{
+            setIsSaving(false)
+        }
+    }
+
+    // Remove the associated contact from the current event
+    async function handleRemoveContact(){
+        try{
+            if(!selectedEventID || selectedEventID === 'new') return
+            setIsSaving(true)
+            setSaveError(null)
+
+            const eventDate = eventData?.date || selectedEventDate
+            const updatePayload = { id: selectedEventID, contact_id: null, date: eventDate }
+            await updateEventDb(updatePayload)
+            // Update redux so UI reflects immediately
+            dispatch(upsertEvent(updatePayload))
+            // Update local state so ContactBox receives null and clears immediately
+            setEventData(prev => ({ ...(prev || {}), contact_id: null }))
+        }catch(err){
+            console.error('handleRemoveContact exception:', err)
+            setSaveError('Error removing contact')
+        }finally{
+            setIsSaving(false)
+        }
+    }
+
+    
     // Create a new event with provided data (used for when contact id is set and there is no event id)
     const createEvent = async (eventData) => {
         try {
@@ -338,6 +397,27 @@ export default function EventBox() {
                                 placeholder="End Time"
                                 isCreatingRef={isCreatingRef}
                             />
+                        </div>
+                        {/* Contact remove and Delete Event buttons */}
+                        <div className="row" style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                            <button
+                                className="secondary-button"
+                                onClick={handleRemoveContact}
+                                disabled={!selectedEventID || selectedEventID === 'new' || isSaving}
+                                title={!selectedEventID || selectedEventID === 'new' ? 'Save event before modifying' : 'Remove the linked contact from this event'}
+                                style={{ flex: 1 }}
+                            >
+                                Remove Contact
+                            </button>
+                            <button
+                                className="danger-button"
+                                onClick={handleDeleteEvent}
+                                disabled={!selectedEventID || selectedEventID === 'new' || isSaving}
+                                title={!selectedEventID || selectedEventID === 'new' ? 'Save event before deleting' : 'Delete this event'}
+                                style={{ flex: 1 }}
+                            >
+                                Delete Event
+                            </button>
                         </div>
                     </div>
                 </div>

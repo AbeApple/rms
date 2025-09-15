@@ -29,14 +29,6 @@ export default function ImageEditBox({ index, image, isDragOver, onDragStart, on
         onDrop?.(e)
     }
 
-    function handleDragLeave(e){
-        onDragLeave?.(e)
-    }
-
-    function handleClick(e){
-        onClick?.(e)
-    }
-
     return (
         <div
             className={`image-edit-box ${isDragOver ? 'edit-box-drop' : ''}`}
@@ -44,8 +36,8 @@ export default function ImageEditBox({ index, image, isDragOver, onDragStart, on
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            onDragLeave={handleDragLeave}
-            onClick={handleClick}
+            onDragLeave={onDragLeave}
+            onClick={onClick}
             title={`Index: ${index}`}
         >
             {url ? (
